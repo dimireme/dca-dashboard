@@ -15,6 +15,14 @@ export async function findAllPurchases(): Promise<Purchase[]> {
   return mapPurchases(records);
 }
 
+export async function findEarliestPurchaseDate(): Promise<string | null> {
+  const record = await prisma.purchase.findFirst({
+    orderBy: { date: "asc" },
+  });
+
+  return record ? mapPurchase(record).date : null;
+}
+
 export async function findPurchasesByDateRange(from: string, to: string): Promise<Purchase[]> {
   const records = await prisma.purchase.findMany({
     where: {

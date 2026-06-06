@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-export const updateSettingsSchema = z.object({
-  dcaStartDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  dailyAmount: z.number().positive(),
-});
-
 export const createPurchaseSchema = z.object({
   amountUsdt: z.number().positive(),
   btcPrice: z.number().positive(),

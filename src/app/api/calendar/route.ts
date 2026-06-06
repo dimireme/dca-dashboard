@@ -15,19 +15,9 @@ export async function GET(request: Request) {
 
   if (parsed.data.month) {
     const calendar = await getCalendarMonth(parsed.data.year, parsed.data.month);
-
-    if (!calendar) {
-      return errorResponse("Settings not found", 404);
-    }
-
     return jsonResponse(calendar);
   }
 
   const calendar = await getCalendarYear(parsed.data.year);
-
-  if (!calendar) {
-    return errorResponse("Settings not found", 404);
-  }
-
   return jsonResponse(calendar);
 }

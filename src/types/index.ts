@@ -11,13 +11,6 @@ export interface Purchase {
   createdAt: string;
 }
 
-export interface Settings {
-  id: string;
-  dcaStartDate: string;
-  dailyAmount: number;
-  updatedAt: string;
-}
-
 export type DayStatus = "neutral" | "covered" | "missed";
 
 export interface CalendarDay {
@@ -40,7 +33,7 @@ export interface DashboardMetrics {
   totalInvested: number;
   totalBtc: number;
   averagePrice: number | null;
-  dcaStartDate: string;
+  dcaStartDate: string | null;
   dailyAmount: number;
   coveredDays: number;
   expectedDays: number;

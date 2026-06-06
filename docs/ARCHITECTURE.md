@@ -153,16 +153,14 @@ Fields:
 
 ---
 
-## Settings
+## DCA Plan Configuration
 
-Application configuration.
+Fixed application constants and derived values:
 
-Fields:
+- `DAILY_AMOUNT_USD = 20` in `src/lib/dca-config.ts`
+- `dcaStartDate` derived from the earliest `Purchase.date` via `findEarliestPurchaseDate()`
 
-- dcaStartDate
-- dailyAmount
-
-Only one settings record exists.
+When there are no purchases yet, the calendar shows all days as neutral and schedule metrics are zero.
 
 ---
 

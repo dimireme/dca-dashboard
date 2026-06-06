@@ -1,7 +1,7 @@
 import { format } from "date-fns";
+import { DAILY_AMOUNT_USD } from "@/lib/dca-config";
 import { getMonthDateKeys } from "@/lib/dates";
-import { findAllPurchases } from "@/repositories/purchase.repository";
-import { getSettings } from "@/repositories/settings.repository";
+import { findAllPurchases, findEarliestPurchaseDate } from "@/repositories/purchase.repository";
 import type { CalendarDay, CalendarMonthData, CalendarYearData } from "@/types";
 import { calculateCoveredDays, calculateTotalInvested, getDayStatus } from "./dca.service";
 
@@ -19,7 +19,7 @@ function buildPurchasesByDate(purchases: PurchaseRecord[]): Record<string, Purch
 
 function buildCalendarDays(
   dateKeys: string[],
-  dcaStartDate: string,
+  dcaStartDate: string | null,
   referenceDateKey: string,
   coveredDays: number,
   todayKey: string,
@@ -27,26 +27,26 @@ function buildCalendarDays(
 ): CalendarDay[] {
   return dateKeys.map((dateKey) => ({
     date: dateKey,
-    status: getDayStatus(dateKey, dcaStartDate, referenceDateKey, coveredDays),
+    status:
+      dcaStartDate === null
+        ? "neutral"
+        : getDayStatus(dateKey, dcaStartDate, referenceDateKey, coveredDays),
     isToday: dateKey === todayKey,
     purchases: purchasesByDate[dateKey] ?? [],
   }));
 }
 
 async function getCalendarContext(referenceDate = new Date()) {
-  const settings = await getSettings();
-
-  if (!settings) {
-    return null;
-  }
-
-  const purchases = await findAllPurchases();
+  const [purchases, dcaStartDate] = await Promise.all([
+    findAllPurchases(),
+    findEarliestPurchaseDate(),
+  ]);
   const referenceDateKey = format(referenceDate, "yyyy-MM-dd");
   const totalInvested = calculateTotalInvested(purchases);
-  const coveredDays = calculateCoveredDays(totalInvested, settings.dailyAmount);
+  const coveredDays = calculateCoveredDays(totalInvested, DAILY_AMOUNT_USD);
 
   return {
-    settings,
+    dcaStartDate,
     referenceDateKey,
     todayKey: referenceDateKey,
     coveredDays,
@@ -58,16 +58,12 @@ export async function getCalendarMonth(
   year: number,
   month: number,
   referenceDate = new Date(),
-): Promise<{ days: CalendarDay[] } | null> {
+): Promise<{ days: CalendarDay[] }> {
   const context = await getCalendarContext(referenceDate);
-
-  if (!context) {
-    return null;
-  }
 
   const days = buildCalendarDays(
     getMonthDateKeys(year, month),
-    context.settings.dcaStartDate,
+    context.dcaStartDate,
     context.referenceDateKey,
     context.coveredDays,
     context.todayKey,
@@ -80,12 +76,8 @@ export async function getCalendarMonth(
 export async function getCalendarYear(
   year: number,
   referenceDate = new Date(),
-): Promise<CalendarYearData | null> {
+): Promise<CalendarYearData> {
   const context = await getCalendarContext(referenceDate);
-
-  if (!context) {
-    return null;
-  }
 
   const months: CalendarMonthData[] = Array.from({ length: 12 }, (_, index) => {
     const month = index + 1;
@@ -94,7 +86,7 @@ export async function getCalendarYear(
       month,
       days: buildCalendarDays(
         getMonthDateKeys(year, month),
-        context.settings.dcaStartDate,
+        context.dcaStartDate,
         context.referenceDateKey,
         context.coveredDays,
         context.todayKey,

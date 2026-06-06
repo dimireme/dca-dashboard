@@ -26,14 +26,14 @@ As a Bitcoin investor, I want to:
 
 ## Core Configuration
 
-User defines:
+The DCA plan is fixed in application code:
 
-- DCA start date
-- target daily investment amount
+- Daily amount: **20 USD** (`DAILY_AMOUNT_USD` in `src/lib/dca-config.ts`)
+- Start date: date of the **first purchase** in the database
 
 Example:
 
-Start date: 2026-01-01
+First purchase: 2026-01-01
 
 Daily amount: 20 USD
 

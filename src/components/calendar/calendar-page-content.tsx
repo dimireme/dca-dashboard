@@ -1,38 +1,34 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from 'react';
 import {
   CalendarMonthHeader,
   CalendarMonthSkeleton,
   CalendarYearHeader,
   CalendarYearSkeleton,
-} from "@/components/calendar/calendar-header";
-import { CalendarMonthView, CalendarYearView } from "@/components/calendar/calendar-month-view";
-import { CalendarStats, CalendarStatsSkeleton } from "@/components/calendar/calendar-stats";
-import { DayDetailSheet } from "@/components/calendar/day-detail-sheet";
-import { useCalendarYear } from "@/hooks/use-calendar";
-import { useDashboard } from "@/hooks/use-dashboard";
-import { useSettings } from "@/hooks/use-settings";
-import type { CalendarDay } from "@/types";
+} from '@/components/calendar/calendar-header';
+import {
+  CalendarMonthView,
+  CalendarYearView,
+} from '@/components/calendar/calendar-month-view';
+import {
+  CalendarStats,
+  CalendarStatsSkeleton,
+} from '@/components/calendar/calendar-stats';
+import { DayDetailSheet } from '@/components/calendar/day-detail-sheet';
+import { useCalendarYear } from '@/hooks/use-calendar';
+import { useDashboard } from '@/hooks/use-dashboard';
+import type { CalendarDay } from '@/types';
 
 export function CalendarPageContent() {
-  const router = useRouter();
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
   const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  const settingsQuery = useSettings();
   const calendarQuery = useCalendarYear(year);
   const dashboardQuery = useDashboard();
-
-  useEffect(() => {
-    if (settingsQuery.isSuccess && settingsQuery.data === null) {
-      router.replace("/settings");
-    }
-  }, [settingsQuery.isSuccess, settingsQuery.data, router]);
 
   const sheetDay = useMemo(() => {
     if (!selectedDay || !calendarQuery.data) {
@@ -79,7 +75,9 @@ export function CalendarPageContent() {
     setSheetOpen(true);
   }
 
-  const monthData = calendarQuery.data?.months.find((entry) => entry.month === month);
+  const monthData = calendarQuery.data?.months.find(
+    (entry) => entry.month === month,
+  );
 
   return (
     <div className="space-y-3">
@@ -89,8 +87,13 @@ export function CalendarPageContent() {
         <CalendarStats metrics={dashboardQuery.data} />
       ) : null}
 
+      <hr />
       <div className="hidden lg:block">
-        <CalendarYearHeader year={year} onPrevious={handlePreviousYear} onNext={handleNextYear} />
+        <CalendarYearHeader
+          year={year}
+          onPrevious={handlePreviousYear}
+          onNext={handleNextYear}
+        />
       </div>
       <div className="lg:hidden">
         <CalendarMonthHeader
@@ -128,12 +131,16 @@ export function CalendarPageContent() {
                 onDayClick={handleDayClick}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">Unable to load calendar data.</p>
+              <p className="text-sm text-muted-foreground">
+                Unable to load calendar data.
+              </p>
             )}
           </div>
         </>
       ) : (
-        <p className="text-sm text-muted-foreground">Unable to load calendar data.</p>
+        <p className="text-sm text-muted-foreground">
+          Unable to load calendar data.
+        </p>
       )}
 
       <DayDetailSheet

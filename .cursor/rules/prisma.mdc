@@ -10,5 +10,3 @@ alwaysApply: false
 # Доменные модели
 
 **Purchase:** date, amountUsdt, btcPrice, btcAmount, source (`manual` | `dca`), notes
-
-**Settings:** dcaStartDate, dailyAmount (одна запись)
