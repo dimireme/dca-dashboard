@@ -1,0 +1,22 @@
+---
+description: UI и React-компоненты
+globs: src/components/**,src/app/**
+alwaysApply: false
+---
+
+- Mobile-first, responsive
+- Данные — React Query, без Redux и лишнего global state
+- shadcn/ui + Tailwind, переиспользуемые компоненты в `components/ui/`
+
+# Календарь (primary screen)
+
+- Навигация по году и месяцу
+- День: green (covered) / red (missed), today — highlight
+- Иконки: manual purchase, DCA purchase
+- Клик по дню → детали покупок
+- UI получает готовые данные из `calendar.service.ts`, не вычисляет состояния сам
+
+# Запреты
+
+- DCA-метрики и Prisma в компонентах
+- Файлы > 300 строк — разбивать

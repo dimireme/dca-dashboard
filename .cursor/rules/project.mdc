@@ -1,0 +1,47 @@
+---
+description: BTC DCA Tracker — контекст проекта
+alwaysApply: true
+---
+
+# BTC DCA Tracker
+
+Личное веб-приложение для отслеживания выполнения DCA-плана по Bitcoin.
+Не portfolio tracker — фокус на schedule execution и covered days.
+
+## Ограничения
+
+- Single-user, без внутренней auth (Cloudflare Zero Trust)
+- MVP: responsive web, SQLite, без уведомлений и бирж
+- Non-goals: оценка портфеля, биржи, multi-user, уведомления, native app
+
+## Приоритеты UI
+
+1. Calendar (primary screen)
+2. Dashboard (secondary)
+
+## Стек
+
+Next.js App Router · TypeScript · Tailwind · shadcn/ui · Prisma · SQLite · React Query · Zod · Vitest
+
+Зависимости — через `yarn`, не npm.
+
+## Слои
+
+UI (`components/`, `app/`) → API (`app/api/`) → Services (`services/`) → Repositories (`repositories/`) → Prisma
+
+- UI: только рендер и взаимодействие
+- API: тонкий слой — Zod-валидация, вызов services
+- Services: вся бизнес-логика
+- Repositories: единственное место для Prisma-запросов
+
+## Принципы
+
+- Простейшее решение, без overengineering и DI-фреймворков
+- DCA-метрики — `dca.service.ts`, календарь — `calendar.service.ts`
+- Файлы < 300 строк, composition over inheritance
+
+## Документация
+
+- Продукт: `docs/PRD.md`
+- Правила кода: `docs/RULES.md`
+- Архитектура: `docs/ARCHITECTURE.md`

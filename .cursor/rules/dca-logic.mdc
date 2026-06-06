@@ -1,0 +1,28 @@
+---
+description: Сервисный слой — DCA, календарь, покупки
+globs: src/services/**,src/types/**,**/*.test.ts
+alwaysApply: false
+---
+
+# Распределение логики
+
+| Файл | Ответственность |
+|------|-----------------|
+| `dca.service.ts` | total invested, total BTC, average price, covered/expected days, behind/ahead |
+| `calendar.service.ts` | day states, covered/missed days, purchase markers |
+| `purchase.service.ts` | обработка покупок, вызов repository |
+
+# Формулы (только в `dca.service.ts`)
+
+- `coveredDays = floor(totalInvested / dailyAmount)`
+- `averagePrice = totalInvested / totalAccumulatedBTC`
+- Covered days **не зависят** от дат покупок
+
+# Запреты
+
+- Не считать метрики в React-компонентах и API routes
+- Не обращаться к Prisma из services — только через repositories
+
+# Тесты (Vitest)
+
+Unit-тесты для: average price, covered days, schedule progress

@@ -1,0 +1,18 @@
+---
+description: API Route Handlers
+globs: src/app/api/**
+alwaysApply: false
+---
+
+- Route Handlers (App Router), не Pages API
+- Вход — Zod, ответы типизированы
+- Routes остаются тонкими: validate → call service → return
+
+# Endpoints
+
+- `POST /api/purchases` — для DCA-бота: `{ amountUsdt, btcPrice, source: "dca" }`
+
+# Запреты
+
+- Бизнес-логика и Prisma-запросы не в routes
+- Raw SQL — только если явно требуется

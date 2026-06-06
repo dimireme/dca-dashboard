@@ -1,0 +1,14 @@
+---
+description: Prisma, схема и repositories
+globs: prisma/**,src/repositories/**,src/lib/prisma.ts
+alwaysApply: false
+---
+
+- SQLite для MVP, изменения схемы — только через Prisma migrations
+- Prisma-запросы — только в `src/repositories/`, не в services и не в API
+
+# Доменные модели
+
+**Purchase:** date, amountUsdt, btcPrice, btcAmount, source (`manual` | `dca`), notes
+
+**Settings:** dcaStartDate, dailyAmount (одна запись)
