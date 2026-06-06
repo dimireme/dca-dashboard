@@ -1,7 +1,10 @@
 'use client';
 
 import { CalendarDayCell } from '@/components/calendar/calendar-day-cell';
-import { CALENDAR_CELL_SIZE_PX } from '@/lib/calendar-layout';
+import {
+  CALENDAR_CELL_SIZE_PX,
+  getLeadingEmptyCells,
+} from '@/lib/calendar-layout';
 import type { CalendarDay } from '@/types';
 
 const monthNames = [
@@ -24,10 +27,6 @@ type CalendarMonthViewProps = {
   month: number;
   days: CalendarDay[];
 };
-
-function getLeadingEmptyCells(year: number, month: number): number {
-  return new Date(year, month - 1, 1).getDay();
-}
 
 export function CalendarMonthView({
   year,
