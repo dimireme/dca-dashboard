@@ -2,15 +2,10 @@
 
 import { useState } from 'react';
 import {
-  CalendarMonthHeader,
-  CalendarMonthSkeleton,
   CalendarYearHeader,
   CalendarYearSkeleton,
 } from '@/components/calendar/calendar-header';
-import {
-  CalendarMonthView,
-  CalendarYearView,
-} from '@/components/calendar/calendar-month-view';
+import { CalendarYearView } from '@/components/calendar/calendar-month-view';
 import {
   CalendarStats,
   CalendarStatsSkeleton,
@@ -21,7 +16,6 @@ import { useDashboard } from '@/hooks/use-dashboard';
 export function CalendarPageContent() {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth() + 1);
   const calendarQuery = useCalendarYear(year);
   const dashboardQuery = useDashboard();
 
@@ -33,30 +27,6 @@ export function CalendarPageContent() {
     setYear((current) => current + 1);
   }
 
-  function handlePreviousMonth() {
-    if (month === 1) {
-      setYear((current) => current - 1);
-      setMonth(12);
-      return;
-    }
-
-    setMonth((current) => current - 1);
-  }
-
-  function handleNextMonth() {
-    if (month === 12) {
-      setYear((current) => current + 1);
-      setMonth(1);
-      return;
-    }
-
-    setMonth((current) => current + 1);
-  }
-
-  const monthData = calendarQuery.data?.months.find(
-    (entry) => entry.month === month,
-  );
-
   return (
     <div className="space-y-3">
       {dashboardQuery.isLoading ? (
@@ -66,59 +36,25 @@ export function CalendarPageContent() {
       ) : null}
 
       <hr />
-      <div className="hidden lg:block">
-        <CalendarYearHeader
-          year={year}
-          onPrevious={handlePreviousYear}
-          onNext={handleNextYear}
-        />
-      </div>
-      <div className="lg:hidden">
-        <CalendarMonthHeader
-          year={year}
-          month={month}
-          onPrevious={handlePreviousMonth}
-          onNext={handleNextMonth}
-        />
-      </div>
+
+      <CalendarYearHeader
+        year={year}
+        onPrevious={handlePreviousYear}
+        onNext={handleNextYear}
+      />
 
       {calendarQuery.isLoading ? (
-        <>
-          <div className="hidden lg:block">
-            <CalendarYearSkeleton />
-          </div>
-          <div className="lg:hidden">
-            <CalendarMonthSkeleton />
-          </div>
-        </>
+        <CalendarYearSkeleton />
       ) : calendarQuery.data ? (
-        <>
-          <div className="hidden lg:block">
-            <CalendarYearView
-              year={year}
-              months={calendarQuery.data.months}
-            />
-          </div>
-          <div className="lg:hidden">
-            {monthData ? (
-              <CalendarMonthView
-                year={year}
-                month={month}
-                days={monthData.days}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                Unable to load calendar data.
-              </p>
-            )}
-          </div>
-        </>
+        <CalendarYearView
+          year={year}
+          months={calendarQuery.data.months}
+        />
       ) : (
         <p className="text-sm text-muted-foreground">
           Unable to load calendar data.
         </p>
       )}
-
     </div>
   );
 }

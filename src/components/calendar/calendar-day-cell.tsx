@@ -8,6 +8,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { DayDetailPopoverContent } from '@/components/calendar/day-detail-popover';
+import { CALENDAR_CELL_SIZE_PX } from '@/lib/calendar-layout';
 import { cn } from '@/lib/utils';
 import type { CalendarDay } from '@/types';
 
@@ -39,18 +40,22 @@ export function CalendarDayCell({ day }: CalendarDayCellProps) {
         closeDelay={200}
         nativeButton
         className={cn(
-          'relative flex aspect-square w-full min-w-0 flex-col justify-between rounded-sm p-1 transition-colors hover:opacity-90',
+          'relative flex shrink-0 flex-col justify-between rounded-sm p-1 transition-colors hover:opacity-90',
           day.isToday && 'bg-calendar-today',
           !day.isToday && day.status === 'covered' && 'bg-calendar-covered',
           !day.isToday && day.status === 'missed' && 'bg-calendar-missed',
           !day.isToday && day.status === 'neutral' && 'bg-muted/30',
         )}
+        style={{
+          width: CALENDAR_CELL_SIZE_PX,
+          height: CALENDAR_CELL_SIZE_PX,
+        }}
       >
         <span className="self-start font-medium leading-none text-muted-foreground">
           {dayNumber}
         </span>
         {hasManual || hasDca ? (
-          <div className="flex w-full items-end justify-between">
+          <div className="flex items-end gap-0.5">
             {hasManual ? (
               <Hand
                 className="size-5 text-icon-manual"
@@ -75,10 +80,7 @@ export function CalendarDayCell({ day }: CalendarDayCellProps) {
         initialFocus={false}
         onMouseEnter={() => setOpen(true)}
       >
-        <DayDetailPopoverContent
-          day={day}
-          onInteractiveChange={setPinned}
-        />
+        <DayDetailPopoverContent day={day} onInteractiveChange={setPinned} />
       </PopoverContent>
     </Popover>
   );
