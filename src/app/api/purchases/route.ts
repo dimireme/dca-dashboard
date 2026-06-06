@@ -38,6 +38,10 @@ export async function POST(request: Request) {
     return validationErrorResponse(parsed.error);
   }
 
-  const purchase = await createPurchase(parsed.data);
-  return jsonResponse(purchase, 201);
+  try {
+    const purchase = await createPurchase(parsed.data);
+    return jsonResponse(purchase, 201);
+  } catch {
+    return errorResponse("Failed to create purchase", 500);
+  }
 }

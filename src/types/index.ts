@@ -27,6 +27,15 @@ export interface CalendarDay {
   purchases: Purchase[];
 }
 
+export interface CalendarMonthData {
+  month: number;
+  days: CalendarDay[];
+}
+
+export interface CalendarYearData {
+  months: CalendarMonthData[];
+}
+
 export interface DashboardMetrics {
   totalInvested: number;
   totalBtc: number;

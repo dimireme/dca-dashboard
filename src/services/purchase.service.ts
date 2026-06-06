@@ -22,7 +22,7 @@ export async function getPurchase(id: string): Promise<Purchase | null> {
 }
 
 export async function createPurchase(input: CreatePurchaseInput): Promise<Purchase> {
-  const date = input.date ?? format(new Date(), "yyyy-MM-dd");
+  const date = input.date?.trim() || format(new Date(), "yyyy-MM-dd");
 
   return createPurchaseRecord({
     ...input,

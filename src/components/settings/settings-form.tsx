@@ -39,7 +39,7 @@ function SettingsFields({
     <form onSubmit={handleSubmit} className="space-y-4">
       {showSetupHint ? (
         <p className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground">
-          No settings yet. Save your DCA plan to unlock the calendar and dashboard.
+          No settings yet. Save your DCA plan to unlock the calendar.
         </p>
       ) : null}
 

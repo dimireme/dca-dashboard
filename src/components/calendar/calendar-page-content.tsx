@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  CalendarHeader,
-  CalendarSkeleton,
+  CalendarMonthHeader,
+  CalendarMonthSkeleton,
+  CalendarYearHeader,
+  CalendarYearSkeleton,
 } from "@/components/calendar/calendar-header";
-import { CalendarLegend, CalendarMonthView } from "@/components/calendar/calendar-month-view";
+import { CalendarMonthView, CalendarYearView } from "@/components/calendar/calendar-month-view";
+import { CalendarStats, CalendarStatsSkeleton } from "@/components/calendar/calendar-stats";
 import { DayDetailSheet } from "@/components/calendar/day-detail-sheet";
-import { useCalendar } from "@/hooks/use-calendar";
+import { useCalendarYear } from "@/hooks/use-calendar";
+import { useDashboard } from "@/hooks/use-dashboard";
 import { useSettings } from "@/hooks/use-settings";
 import type { CalendarDay } from "@/types";
 
@@ -21,13 +25,34 @@ export function CalendarPageContent() {
   const [sheetOpen, setSheetOpen] = useState(false);
 
   const settingsQuery = useSettings();
-  const calendarQuery = useCalendar(year, month);
+  const calendarQuery = useCalendarYear(year);
+  const dashboardQuery = useDashboard();
 
   useEffect(() => {
     if (settingsQuery.isSuccess && settingsQuery.data === null) {
       router.replace("/settings");
     }
   }, [settingsQuery.isSuccess, settingsQuery.data, router]);
+
+  const sheetDay = useMemo(() => {
+    if (!selectedDay || !calendarQuery.data) {
+      return selectedDay;
+    }
+
+    return (
+      calendarQuery.data.months
+        .flatMap((entry) => entry.days)
+        .find((day) => day.date === selectedDay.date) ?? selectedDay
+    );
+  }, [calendarQuery.data, selectedDay]);
+
+  function handlePreviousYear() {
+    setYear((current) => current - 1);
+  }
+
+  function handleNextYear() {
+    setYear((current) => current + 1);
+  }
 
   function handlePreviousMonth() {
     if (month === 1) {
@@ -54,31 +79,69 @@ export function CalendarPageContent() {
     setSheetOpen(true);
   }
 
+  const monthData = calendarQuery.data?.months.find((entry) => entry.month === month);
+
   return (
-    <div className="space-y-6">
-      <CalendarHeader
-        year={year}
-        month={month}
-        onPrevious={handlePreviousMonth}
-        onNext={handleNextMonth}
-      />
+    <div className="space-y-3">
+      {dashboardQuery.isLoading ? (
+        <CalendarStatsSkeleton />
+      ) : dashboardQuery.data ? (
+        <CalendarStats metrics={dashboardQuery.data} />
+      ) : null}
 
-      <CalendarLegend />
-
-      {calendarQuery.isLoading ? (
-        <CalendarSkeleton />
-      ) : calendarQuery.data ? (
-        <CalendarMonthView
+      <div className="hidden lg:block">
+        <CalendarYearHeader year={year} onPrevious={handlePreviousYear} onNext={handleNextYear} />
+      </div>
+      <div className="lg:hidden">
+        <CalendarMonthHeader
           year={year}
           month={month}
-          days={calendarQuery.data}
-          onDayClick={handleDayClick}
+          onPrevious={handlePreviousMonth}
+          onNext={handleNextMonth}
         />
+      </div>
+
+      {calendarQuery.isLoading ? (
+        <>
+          <div className="hidden lg:block">
+            <CalendarYearSkeleton />
+          </div>
+          <div className="lg:hidden">
+            <CalendarMonthSkeleton />
+          </div>
+        </>
+      ) : calendarQuery.data ? (
+        <>
+          <div className="hidden lg:block">
+            <CalendarYearView
+              year={year}
+              months={calendarQuery.data.months}
+              onDayClick={handleDayClick}
+            />
+          </div>
+          <div className="lg:hidden">
+            {monthData ? (
+              <CalendarMonthView
+                year={year}
+                month={month}
+                days={monthData.days}
+                onDayClick={handleDayClick}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">Unable to load calendar data.</p>
+            )}
+          </div>
+        </>
       ) : (
         <p className="text-sm text-muted-foreground">Unable to load calendar data.</p>
       )}
 
-      <DayDetailSheet day={selectedDay} open={sheetOpen} onOpenChange={setSheetOpen} />
+      <DayDetailSheet
+        key={sheetDay?.date}
+        day={sheetDay}
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+      />
     </div>
   );
 }

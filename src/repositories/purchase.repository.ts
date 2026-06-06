@@ -1,3 +1,4 @@
+import { toDbDate } from "@/lib/dates";
 import { mapPurchase, mapPurchases } from "@/lib/mappers";
 import { prisma } from "@/lib/prisma";
 import type { CreatePurchaseInput, Purchase, UpdatePurchaseInput } from "@/types";
@@ -36,7 +37,7 @@ export async function findPurchaseById(id: string): Promise<Purchase | null> {
 export async function createPurchase(input: CreatePurchaseInput & { date: string }): Promise<Purchase> {
   const record = await prisma.purchase.create({
     data: {
-      date: new Date(`${input.date}T00:00:00.000Z`),
+      date: toDbDate(input.date),
       amountUsdt: input.amountUsdt,
       btcPrice: input.btcPrice,
       btcAmount: calculateBtcAmount(input.amountUsdt, input.btcPrice),

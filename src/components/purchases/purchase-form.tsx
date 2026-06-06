@@ -35,10 +35,24 @@ export function PurchaseForm({
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
 
+    const amount = Number(amountUsdt);
+    const price = Number(btcPrice);
+    const effectiveDate = initialDate ?? date;
+
+    if (
+      !effectiveDate ||
+      !Number.isFinite(amount) ||
+      amount <= 0 ||
+      !Number.isFinite(price) ||
+      price <= 0
+    ) {
+      return;
+    }
+
     await onSubmit({
-      date,
-      amountUsdt: Number(amountUsdt),
-      btcPrice: Number(btcPrice),
+      date: effectiveDate,
+      amountUsdt: amount,
+      btcPrice: price,
       source,
       notes: notes || undefined,
     });
@@ -60,6 +74,7 @@ export function PurchaseForm({
       onCancel={onCancel}
       isSubmitting={isSubmitting}
       submitLabel="Add purchase"
+      lockDate={Boolean(initialDate)}
     />
   );
 }
@@ -123,6 +138,8 @@ function PurchaseFormFields({
   onCancel,
   isSubmitting,
   submitLabel,
+  lockDate = false,
+  error,
 }: {
   date: string;
   setDate: (value: string) => void;
@@ -138,6 +155,8 @@ function PurchaseFormFields({
   onCancel?: () => void;
   isSubmitting?: boolean;
   submitLabel: string;
+  lockDate?: boolean;
+  error?: string | null;
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
@@ -148,6 +167,7 @@ function PurchaseFormFields({
           type="date"
           value={date}
           onChange={(event) => setDate(event.target.value)}
+          readOnly={lockDate}
           required
         />
       </div>
@@ -200,6 +220,8 @@ function PurchaseFormFields({
           placeholder="Optional"
         />
       </div>
+
+      {error ? <p className="text-sm text-rose-600">{error}</p> : null}
 
       <div className="flex gap-2">
         <Button type="submit" disabled={isSubmitting}>
