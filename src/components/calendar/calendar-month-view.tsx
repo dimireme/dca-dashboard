@@ -24,7 +24,6 @@ type CalendarMonthViewProps = {
   year: number;
   month: number;
   days: CalendarDay[];
-  onDayClick: (day: CalendarDay) => void;
   compact?: boolean;
 };
 
@@ -36,7 +35,6 @@ export function CalendarMonthView({
   year,
   month,
   days,
-  onDayClick,
   compact = false,
 }: CalendarMonthViewProps) {
   const leadingCells = getLeadingEmptyCells(year, month);
@@ -44,7 +42,7 @@ export function CalendarMonthView({
   return (
     <div className={compact ? "space-y-1" : "space-y-2"}>
       {!compact ? (
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-medium text-muted-foreground">
+        <div className="grid grid-cols-7 gap-1 text-center font-medium text-muted-foreground">
           {weekdayLabels.map((label, index) => (
             <div key={`${label}-${index}`}>{label}</div>
           ))}
@@ -57,7 +55,7 @@ export function CalendarMonthView({
         ))}
 
         {days.map((day) => (
-          <CalendarDayCell key={day.date} day={day} onClick={onDayClick} />
+          <CalendarDayCell key={day.date} day={day} />
         ))}
       </div>
     </div>
@@ -67,22 +65,20 @@ export function CalendarMonthView({
 type CalendarYearViewProps = {
   year: number;
   months: Array<{ month: number; days: CalendarDay[] }>;
-  onDayClick: (day: CalendarDay) => void;
 };
 
-export function CalendarYearView({ year, months, onDayClick }: CalendarYearViewProps) {
+export function CalendarYearView({ year, months }: CalendarYearViewProps) {
   return (
     <div className="grid grid-cols-3 gap-x-3 gap-y-2 xl:grid-cols-4">
       {months.map(({ month, days }) => (
         <div key={month}>
-          <h3 className="mb-0.5 text-[11px] font-medium text-muted-foreground">
+          <h3 className="mb-0.5 font-medium text-muted-foreground">
             {monthNames[month - 1]}
           </h3>
           <CalendarMonthView
             year={year}
             month={month}
             days={days}
-            onDayClick={onDayClick}
             compact
           />
         </div>

@@ -90,7 +90,7 @@ export function CalendarYearSkeleton() {
     <div className="grid grid-cols-3 gap-x-3 gap-y-2 xl:grid-cols-4">
       {Array.from({ length: 12 }).map((_, index) => (
         <div key={index} className="space-y-1">
-          <Skeleton className="h-3 w-8" />
+          <Skeleton className="h-4 w-12" />
           <div className="grid grid-cols-7 gap-px">
             {Array.from({ length: 35 }).map((__, cellIndex) => (
               <Skeleton key={cellIndex} className="aspect-square rounded-sm" />
@@ -107,7 +107,7 @@ export function CalendarMonthSkeleton() {
     <div className="space-y-2">
       <div className="grid grid-cols-7 gap-1">
         {Array.from({ length: 7 }).map((_, index) => (
-          <Skeleton key={index} className="h-3" />
+          <Skeleton key={index} className="h-4" />
         ))}
       </div>
       <div className="grid grid-cols-7 gap-px">

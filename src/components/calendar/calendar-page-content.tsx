@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import {
   CalendarMonthHeader,
   CalendarMonthSkeleton,
@@ -15,32 +15,15 @@ import {
   CalendarStats,
   CalendarStatsSkeleton,
 } from '@/components/calendar/calendar-stats';
-import { DayDetailSheet } from '@/components/calendar/day-detail-sheet';
 import { useCalendarYear } from '@/hooks/use-calendar';
 import { useDashboard } from '@/hooks/use-dashboard';
-import type { CalendarDay } from '@/types';
 
 export function CalendarPageContent() {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth() + 1);
-  const [selectedDay, setSelectedDay] = useState<CalendarDay | null>(null);
-  const [sheetOpen, setSheetOpen] = useState(false);
-
   const calendarQuery = useCalendarYear(year);
   const dashboardQuery = useDashboard();
-
-  const sheetDay = useMemo(() => {
-    if (!selectedDay || !calendarQuery.data) {
-      return selectedDay;
-    }
-
-    return (
-      calendarQuery.data.months
-        .flatMap((entry) => entry.days)
-        .find((day) => day.date === selectedDay.date) ?? selectedDay
-    );
-  }, [calendarQuery.data, selectedDay]);
 
   function handlePreviousYear() {
     setYear((current) => current - 1);
@@ -68,11 +51,6 @@ export function CalendarPageContent() {
     }
 
     setMonth((current) => current + 1);
-  }
-
-  function handleDayClick(day: CalendarDay) {
-    setSelectedDay(day);
-    setSheetOpen(true);
   }
 
   const monthData = calendarQuery.data?.months.find(
@@ -119,7 +97,6 @@ export function CalendarPageContent() {
             <CalendarYearView
               year={year}
               months={calendarQuery.data.months}
-              onDayClick={handleDayClick}
             />
           </div>
           <div className="lg:hidden">
@@ -128,7 +105,6 @@ export function CalendarPageContent() {
                 year={year}
                 month={month}
                 days={monthData.days}
-                onDayClick={handleDayClick}
               />
             ) : (
               <p className="text-sm text-muted-foreground">
@@ -143,12 +119,6 @@ export function CalendarPageContent() {
         </p>
       )}
 
-      <DayDetailSheet
-        key={sheetDay?.date}
-        day={sheetDay}
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
-      />
     </div>
   );
 }
