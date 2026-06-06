@@ -40,7 +40,7 @@ export function CalendarDayCell({ day }: CalendarDayCellProps) {
         closeDelay={200}
         nativeButton
         className={cn(
-          'relative flex shrink-0 flex-col justify-between rounded-sm p-1 transition-colors hover:opacity-90',
+          'relative flex shrink-0 cursor-pointer flex-col justify-between rounded-sm p-1 transition-colors hover:opacity-90',
           day.isToday && 'bg-calendar-today',
           !day.isToday && day.status === 'covered' && 'bg-calendar-covered',
           !day.isToday && day.status === 'missed' && 'bg-calendar-missed',

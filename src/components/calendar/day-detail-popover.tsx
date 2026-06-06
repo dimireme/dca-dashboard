@@ -115,7 +115,6 @@ export function DayDetailPopoverContent({
         <>
           <PurchaseList
             purchases={day.purchases}
-            compact
             onEdit={(purchase) => {
               setEditingPurchase(purchase);
               setShowForm(false);
