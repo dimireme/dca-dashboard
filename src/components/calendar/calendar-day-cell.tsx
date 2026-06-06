@@ -39,13 +39,11 @@ export function CalendarDayCell({ day }: CalendarDayCellProps) {
         closeDelay={200}
         nativeButton
         className={cn(
-          'relative flex aspect-square w-full min-w-0 flex-col justify-between rounded-sm border p-0.5 transition-colors hover:opacity-90',
-          day.status === 'covered' &&
-            'border-emerald-300/80 bg-emerald-50 dark:bg-emerald-950/40',
-          day.status === 'missed' &&
-            'border-rose-300/80 bg-rose-50 dark:bg-rose-950/40',
-          day.status === 'neutral' && 'border-transparent bg-muted/30',
-          day.isToday && 'ring-1 ring-primary ring-offset-1',
+          'relative flex aspect-square w-full min-w-0 flex-col justify-between rounded-sm p-1 transition-colors hover:opacity-90',
+          day.isToday && 'bg-calendar-today',
+          !day.isToday && day.status === 'covered' && 'bg-calendar-covered',
+          !day.isToday && day.status === 'missed' && 'bg-calendar-missed',
+          !day.isToday && day.status === 'neutral' && 'bg-muted/30',
         )}
       >
         <span className="self-start font-medium leading-none text-muted-foreground">
@@ -55,14 +53,14 @@ export function CalendarDayCell({ day }: CalendarDayCellProps) {
           <div className="flex w-full items-end justify-between">
             {hasManual ? (
               <Hand
-                className="size-5 text-amber-600"
+                className="size-5 text-icon-manual"
                 aria-label="Manual purchase"
               />
             ) : (
               <span className="size-5 shrink-0" />
             )}
             {hasDca ? (
-              <Bot className="size-5 text-blue-600" aria-label="DCA purchase" />
+              <Bot className="size-5 text-icon-dca" aria-label="DCA purchase" />
             ) : (
               <span className="size-5 shrink-0" />
             )}

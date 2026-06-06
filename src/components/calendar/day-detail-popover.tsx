@@ -1,11 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  PopoverDescription,
-  PopoverHeader,
-  PopoverTitle,
-} from '@/components/ui/popover';
+import { PopoverHeader, PopoverTitle } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import {
   PurchaseEditForm,
@@ -89,46 +85,32 @@ export function DayDetailPopoverContent({
     }
   }
 
-  const statusLabel =
-    day.status === 'covered'
-      ? 'Covered by DCA progress'
-      : day.status === 'missed'
-        ? 'Behind DCA schedule'
-        : 'Outside active schedule';
-
   return (
     <div className="max-h-[min(30rem,var(--available-height))] space-y-3 overflow-y-auto">
       <PopoverHeader>
         <PopoverTitle>{formatDate(day.date)}</PopoverTitle>
-        <PopoverDescription>{statusLabel}</PopoverDescription>
       </PopoverHeader>
 
-      {error ? <p className="text-xs text-rose-600">{error}</p> : null}
+      {error ? <p className="text-xs text-destructive">{error}</p> : null}
 
       {editingPurchase ? (
-        <div className="space-y-2">
-          <h3 className="text-xs font-medium">Edit purchase</h3>
-          <PurchaseEditForm
-            purchase={editingPurchase}
-            onSubmit={handleUpdate}
-            onCancel={() => setEditingPurchase(null)}
-            isSubmitting={updatePurchase.isPending}
-          />
-        </div>
+        <PurchaseEditForm
+          purchase={editingPurchase}
+          onSubmit={handleUpdate}
+          onCancel={() => setEditingPurchase(null)}
+          isSubmitting={updatePurchase.isPending}
+        />
       ) : showForm ? (
-        <div className="space-y-2">
-          <h3 className="text-xs font-medium">Add purchase</h3>
-          <PurchaseForm
-            key={day.date}
-            initialDate={day.date}
-            onSubmit={handleCreate}
-            onCancel={() => {
-              setShowForm(false);
-              setError(null);
-            }}
-            isSubmitting={createPurchase.isPending}
-          />
-        </div>
+        <PurchaseForm
+          key={day.date}
+          initialDate={day.date}
+          onSubmit={handleCreate}
+          onCancel={() => {
+            setShowForm(false);
+            setError(null);
+          }}
+          isSubmitting={createPurchase.isPending}
+        />
       ) : (
         <>
           <PurchaseList

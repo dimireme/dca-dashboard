@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
-import { formatBtc, formatUsdWhole } from "@/lib/format";
-import type { DashboardMetrics } from "@/types";
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { formatBtc, formatUsdWhole } from '@/lib/format';
+import { DAILY_AMOUNT_USD } from '@/lib/dca-config';
+import type { DashboardMetrics } from '@/types';
 
 type CalendarStatsProps = {
   metrics: DashboardMetrics;
@@ -13,24 +14,24 @@ type CalendarStatsProps = {
 function getScheduleDisplay(metrics: DashboardMetrics) {
   if (metrics.daysBehind > 0) {
     return {
-      label: "behind",
+      label: 'Behind',
       value: `${metrics.daysBehind} days (${formatUsdWhole(metrics.amountBehind)})`,
-      className: "text-rose-600 dark:text-rose-400",
+      className: 'text-status-behind',
     };
   }
 
   if (metrics.daysAhead > 0) {
     return {
-      label: "ahead",
+      label: 'Ahead',
       value: `${metrics.daysAhead} days (${formatUsdWhole(metrics.amountAhead)})`,
-      className: "text-emerald-600 dark:text-emerald-400",
+      className: 'text-status-ahead',
     };
   }
 
   return {
-    label: "on schedule",
-    value: "0 days",
-    className: "text-muted-foreground",
+    label: 'On schedule',
+    value: '0 days',
+    className: 'text-muted-foreground',
   };
 }
 
@@ -38,9 +39,13 @@ export function CalendarStats({ metrics, className }: CalendarStatsProps) {
   const schedule = getScheduleDisplay(metrics);
 
   return (
-    <div className={cn("flex flex-wrap gap-x-6 gap-y-2 text-sm", className)}>
+    <div className={cn('flex flex-wrap gap-x-6 gap-y-2 text-sm', className)}>
       <div>
-        <p className="text-muted-foreground">invested</p>
+        <p className="text-muted-foreground">Tatget</p>
+        <p className="font-medium">{formatUsdWhole(DAILY_AMOUNT_USD)}/day</p>
+      </div>
+      <div>
+        <p className="text-muted-foreground">Invested</p>
         <p className="font-medium">{formatUsdWhole(metrics.totalInvested)}</p>
       </div>
       <div>
@@ -50,12 +55,14 @@ export function CalendarStats({ metrics, className }: CalendarStatsProps) {
       <div>
         <p className="text-muted-foreground">Average price</p>
         <p className="font-medium">
-          {metrics.averagePrice ? formatUsdWhole(metrics.averagePrice) : "—"}
+          {metrics.averagePrice ? formatUsdWhole(metrics.averagePrice) : '—'}
         </p>
       </div>
       <div>
         <p className="text-muted-foreground">{schedule.label}</p>
-        <p className={cn("font-medium", schedule.className)}>{schedule.value}</p>
+        <p className={cn('font-medium', schedule.className)}>
+          {schedule.value}
+        </p>
       </div>
     </div>
   );
@@ -63,7 +70,7 @@ export function CalendarStats({ metrics, className }: CalendarStatsProps) {
 
 export function CalendarStatsSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("flex flex-wrap gap-x-6 gap-y-2", className)}>
+    <div className={cn('flex flex-wrap gap-x-6 gap-y-2', className)}>
       {Array.from({ length: 4 }).map((_, index) => (
         <div key={index} className="space-y-1">
           <Skeleton className="h-3 w-16" />
