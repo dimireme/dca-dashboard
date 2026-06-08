@@ -24,6 +24,14 @@ export const calendarQuerySchema = z.object({
   month: z.coerce.number().int().min(1).max(12).optional(),
 });
 
+export const createPurchaseRangeSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  dayCount: z.number().int().min(1).max(366),
+  amountUsdtPerDay: z.number().positive(),
+  totalBtcAmount: z.number().positive(),
+  notes: z.string().optional(),
+});
+
 export const purchasesQuerySchema = z.object({
   from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),

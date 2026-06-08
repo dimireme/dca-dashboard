@@ -36,7 +36,7 @@ export function CalendarDayCell({ day }: CalendarDayCellProps) {
     >
       <PopoverTrigger
         openOnHover={!pinned}
-        delay={150}
+        delay={50}
         closeDelay={200}
         nativeButton
         className={cn(

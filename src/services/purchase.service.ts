@@ -1,13 +1,24 @@
 import { format } from "date-fns";
 import {
+  buildPurchaseRangeRecords,
+  calculateRangeBtcPrice,
+} from "@/lib/purchase-range";
+import {
   createPurchase as createPurchaseRecord,
+  createPurchases,
   deletePurchase as deletePurchaseRecord,
   findAllPurchases,
   findPurchaseById,
   findPurchasesByDateRange,
   updatePurchase as updatePurchaseRecord,
 } from "@/repositories/purchase.repository";
-import type { CreatePurchaseInput, Purchase, UpdatePurchaseInput } from "@/types";
+import type {
+  CreatePurchaseInput,
+  CreatePurchaseRangeInput,
+  CreatePurchaseRangeResult,
+  Purchase,
+  UpdatePurchaseInput,
+} from "@/types";
 
 export async function listPurchases(from?: string, to?: string): Promise<Purchase[]> {
   if (from && to) {
@@ -39,4 +50,23 @@ export async function updatePurchase(
 
 export async function deletePurchase(id: string): Promise<boolean> {
   return deletePurchaseRecord(id);
+}
+
+export async function createPurchaseRange(
+  input: CreatePurchaseRangeInput,
+): Promise<CreatePurchaseRangeResult> {
+  const records = buildPurchaseRangeRecords(input);
+  const created = await createPurchases(records);
+  const btcPrice = calculateRangeBtcPrice(
+    input.dayCount,
+    input.amountUsdtPerDay,
+    input.totalBtcAmount,
+  );
+
+  return {
+    created,
+    startDate: input.startDate,
+    endDate: records[records.length - 1].date,
+    btcPrice,
+  };
 }

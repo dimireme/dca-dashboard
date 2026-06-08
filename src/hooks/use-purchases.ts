@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/api-client";
-import type { CreatePurchaseInput, Purchase, UpdatePurchaseInput } from "@/types";
+import type {
+  CreatePurchaseInput,
+  CreatePurchaseRangeInput,
+  CreatePurchaseRangeResult,
+  Purchase,
+  UpdatePurchaseInput,
+} from "@/types";
 
 export function usePurchases(from?: string, to?: string) {
   const params = new URLSearchParams();
@@ -22,6 +28,20 @@ export function useCreatePurchase() {
   return useMutation({
     mutationFn: (input: CreatePurchaseInput) =>
       apiClient.post<Purchase>("/api/purchases", input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["purchases"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["calendar"] });
+    },
+  });
+}
+
+export function useCreatePurchaseRange() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: CreatePurchaseRangeInput) =>
+      apiClient.post<CreatePurchaseRangeResult>("/api/purchases/range", input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["purchases"] });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });

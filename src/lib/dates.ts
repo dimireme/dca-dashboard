@@ -48,6 +48,18 @@ export function getDayIndexFromStart(dateKey: string, startDateKey: string): num
   return diff + 1;
 }
 
+export function generateDateRange(startDateKey: string, dayCount: number): string[] {
+  const dates: string[] = [];
+  let current = parseDateKey(startDateKey);
+
+  for (let i = 0; i < dayCount; i++) {
+    dates.push(toDateKey(current));
+    current = addDays(current, 1);
+  }
+
+  return dates;
+}
+
 export function getExpectedDays(dcaStartDateKey: string, referenceDateKey: string): number {
   const start = parseDateKey(dcaStartDateKey);
   const reference = parseDateKey(referenceDateKey);

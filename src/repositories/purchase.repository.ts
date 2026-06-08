@@ -42,6 +42,27 @@ export async function findPurchaseById(id: string): Promise<Purchase | null> {
   return record ? mapPurchase(record) : null;
 }
 
+export async function createPurchases(
+  inputs: Array<CreatePurchaseInput & { date: string }>,
+): Promise<number> {
+  if (inputs.length === 0) {
+    return 0;
+  }
+
+  const result = await prisma.purchase.createMany({
+    data: inputs.map((input) => ({
+      date: toDbDate(input.date),
+      amountUsdt: input.amountUsdt,
+      btcPrice: input.btcPrice,
+      btcAmount: calculateBtcAmount(input.amountUsdt, input.btcPrice),
+      source: input.source,
+      notes: input.notes ?? null,
+    })),
+  });
+
+  return result.count;
+}
+
 export async function createPurchase(input: CreatePurchaseInput & { date: string }): Promise<Purchase> {
   const record = await prisma.purchase.create({
     data: {

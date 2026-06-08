@@ -58,3 +58,18 @@ export interface UpdatePurchaseInput {
   source?: PurchaseSource;
   notes?: string | null;
 }
+
+export interface CreatePurchaseRangeInput {
+  startDate: string;
+  dayCount: number;
+  amountUsdtPerDay: number;
+  totalBtcAmount: number;
+  notes?: string;
+}
+
+export interface CreatePurchaseRangeResult {
+  created: number;
+  startDate: string;
+  endDate: string;
+  btcPrice: number;
+}

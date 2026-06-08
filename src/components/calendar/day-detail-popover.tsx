@@ -7,9 +7,11 @@ import {
   PurchaseEditForm,
   PurchaseForm,
 } from '@/components/purchases/purchase-form';
+import { PurchaseRangeForm } from '@/components/purchases/purchase-range-form';
 import { PurchaseList } from '@/components/purchases/purchase-list';
 import {
   useCreatePurchase,
+  useCreatePurchaseRange,
   useDeletePurchase,
   useUpdatePurchase,
 } from '@/hooks/use-purchases';
@@ -17,6 +19,7 @@ import { formatDate } from '@/lib/format';
 import type {
   CalendarDay,
   CreatePurchaseInput,
+  CreatePurchaseRangeInput,
   Purchase,
   UpdatePurchaseInput,
 } from '@/types';
@@ -32,12 +35,14 @@ export function DayDetailPopoverContent({
 }: DayDetailPopoverContentProps) {
   const [editingPurchase, setEditingPurchase] = useState<Purchase | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showRangeForm, setShowRangeForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const createPurchase = useCreatePurchase();
+  const createPurchaseRange = useCreatePurchaseRange();
   const updatePurchase = useUpdatePurchase();
   const deletePurchase = useDeletePurchase();
 
-  const isInteractive = showForm || editingPurchase !== null;
+  const isInteractive = showForm || showRangeForm || editingPurchase !== null;
 
   useEffect(() => {
     onInteractiveChange?.(isInteractive);
@@ -52,6 +57,19 @@ export function DayDetailPopoverContent({
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Failed to create purchase',
+      );
+    }
+  }
+
+  async function handleCreateRange(input: CreatePurchaseRangeInput) {
+    setError(null);
+
+    try {
+      await createPurchaseRange.mutateAsync(input);
+      setShowRangeForm(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to create purchase range',
       );
     }
   }
@@ -86,7 +104,7 @@ export function DayDetailPopoverContent({
   }
 
   return (
-    <div className="max-h-[min(30rem,var(--available-height))] space-y-3 overflow-y-auto">
+    <div className="max-h-[min(35rem,var(--available-height))] space-y-3 overflow-y-auto">
       <PopoverHeader>
         <PopoverTitle>{formatDate(day.date)}</PopoverTitle>
       </PopoverHeader>
@@ -111,6 +129,18 @@ export function DayDetailPopoverContent({
           }}
           isSubmitting={createPurchase.isPending}
         />
+      ) : showRangeForm ? (
+        <PurchaseRangeForm
+          key={`range-${day.date}`}
+          startDate={day.date}
+          onSubmit={handleCreateRange}
+          onCancel={() => {
+            setShowRangeForm(false);
+            setError(null);
+          }}
+          isSubmitting={createPurchaseRange.isPending}
+          error={error}
+        />
       ) : (
         <>
           <PurchaseList
@@ -118,24 +148,41 @@ export function DayDetailPopoverContent({
             onEdit={(purchase) => {
               setEditingPurchase(purchase);
               setShowForm(false);
+              setShowRangeForm(false);
               setError(null);
             }}
             onDelete={handleDelete}
             isDeleting={deletePurchase.isPending}
           />
 
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="w-full"
-            onClick={() => {
-              setShowForm(true);
-              setError(null);
-            }}
-          >
-            Add purchase
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => {
+                setShowForm(true);
+                setShowRangeForm(false);
+                setError(null);
+              }}
+            >
+              Add purchase
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={() => {
+                setShowRangeForm(true);
+                setShowForm(false);
+                setError(null);
+              }}
+            >
+              Add range
+            </Button>
+          </div>
         </>
       )}
     </div>
