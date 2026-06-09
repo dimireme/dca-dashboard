@@ -3,7 +3,6 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { formatBtc, formatUsdWhole } from '@/lib/format';
-import { DAILY_AMOUNT_USD } from '@/lib/dca-config';
 import type { DashboardMetrics } from '@/types';
 
 type CalendarStatsProps = {
@@ -42,7 +41,7 @@ export function CalendarStats({ metrics, className }: CalendarStatsProps) {
     <div className={cn('flex flex-wrap gap-x-6 gap-y-2 text-sm', className)}>
       <div>
         <p className="text-muted-foreground">Tatget</p>
-        <p className="font-medium">{formatUsdWhole(DAILY_AMOUNT_USD)}/day</p>
+        <p className="font-medium">{formatUsdWhole(metrics.dailyAmount)}/day</p>
       </div>
       <div>
         <p className="text-muted-foreground">Invested</p>

@@ -26,16 +26,16 @@ As a Bitcoin investor, I want to:
 
 ## Core Configuration
 
-The DCA plan is fixed in application code:
+The DCA plan is configured via environment variables:
 
-- Daily amount: **20 USD** (`DAILY_AMOUNT_USD` in `src/lib/dca-config.ts`)
+- Daily amount: `DAILY_AMOUNT_USD` in `.env` (default **20 USD**, see `.env.example`)
 - Start date: date of the **first purchase** in the database
 
 Example:
 
 First purchase: 2026-01-01
 
-Daily amount: 20 USD
+Daily amount: 20 USD (`DAILY_AMOUNT_USD=20`)
 
 ---
 
