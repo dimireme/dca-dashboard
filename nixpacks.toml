@@ -1,0 +1,7 @@
+# Nixpacks default nixpkgs ships Node 22.11, but Prisma 7.8 requires >= 22.12.
+# Pin a newer nixpkgs archive if deploying without Dockerfile.
+[phases.setup]
+nixpkgsArchive = "51ad838b03a05b1de6f9f2a0fffecee64a9788ee"
+
+[variables]
+NIXPACKS_NODE_VERSION = "22"
