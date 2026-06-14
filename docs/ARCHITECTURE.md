@@ -153,7 +153,6 @@ Production runs on Coolify with Nixpacks.
 
 - `docker compose up -d` — local PostgreSQL
 - `yarn db:migrate` — apply migrations in development
-- `yarn db:import-sqlite` — one-time import from legacy `dev.db`
 
 ## Coolify Setup
 
