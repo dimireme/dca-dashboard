@@ -108,3 +108,24 @@ No internal authentication system is required.
 No user accounts are required.
 
 Single-user application.
+
+### DCA Worker
+
+- `WALLET_PRIVATE_KEY` — only in worker process env, never in dashboard
+- Use a dedicated DCA wallet with limited USDC balance, not the main cold wallet
+- Never log private keys, RPC URLs with embedded secrets, or full transaction payloads in production
+- Odos API key — worker only
+
+---
+
+## Worker
+
+Worker code lives in `src/worker/`.
+
+Rules:
+
+- Reuse `services/` and `repositories/` — no duplicated business logic
+- No Prisma calls outside repositories
+- No HTTP API calls to the dashboard — write to DB directly via services
+- Swap logic isolated in `src/worker/swap/`
+- Scheduling via `DcaStrategy.nextExecutionAt` per strategy in DB, not cron

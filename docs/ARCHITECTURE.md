@@ -2,14 +2,30 @@
 
 ## Overview
 
-BTC DCA Tracker is a single-user web application.
+BTC DCA Tracker is a single-user application with two runtime processes:
 
-Architecture follows:
+```
+Next.js Dashboard  ──►  PostgreSQL  ◄──  Node Worker
+                                              │
+                                              ▼
+                                           Odos API
+                                              │
+                                              ▼
+                                          Arbitrum
+```
+
+- **Dashboard** — web UI and API for manual purchases and metrics
+- **Worker** — background process for automated USDC → WBTC swaps
+
+One repository, one database, shared services and repositories.
+
+Architecture layers:
 
 - UI Layer
 - API Layer
 - Service Layer
-- Persistence Layer
+- Repository Layer
+- Worker Layer (uses Service + Repository, no UI/API)
 
 Business logic must be isolated inside services.
 
@@ -19,32 +35,36 @@ React components must remain presentation-focused.
 
 # Project Structure
 
+```
 src/
-
-app/
-api/
-dashboard/
-
-components/
-calendar/
-dashboard/
-purchases/
-ui/
-
-services/
-dca.service.ts
-purchase.service.ts
-calendar.service.ts
-
-repositories/
-purchase.repository.ts
-
-lib/
-prisma.ts
-
-types/
-
+  app/
+    api/
+    dashboard/
+  components/
+    calendar/
+    dashboard/
+    purchases/
+    ui/
+  services/
+    dca.service.ts
+    purchase.service.ts
+    calendar.service.ts
+  repositories/
+    purchase.repository.ts
+    dca-strategy.repository.ts
+  worker/
+    index.ts
+    scheduler.ts
+    swap/
+      odos.client.ts
+      swap.service.ts
+  lib/
+    prisma.ts
+  types/
 prisma/
+```
+
+MVP stays in a flat `src/` layout. No monorepo (`apps/`, `packages/`) until complexity justifies it.
 
 ---
 
@@ -54,8 +74,8 @@ prisma/
 
 Location:
 
-src/components
-src/app
+`src/components`
+`src/app`
 
 Responsibilities:
 
@@ -74,7 +94,7 @@ Must NOT:
 
 Location:
 
-src/app/api
+`src/app/api`
 
 Responsibilities:
 
@@ -95,19 +115,15 @@ API routes should remain thin.
 
 Location:
 
-src/services/
-dca.service.ts
-calendar.service.ts
-purchase.service.ts
+`src/services/`
 
-Responsibilities:
+| File | Responsibility |
+|------|----------------|
+| `dca.service.ts` | DCA metrics, covered days, schedule progress |
+| `calendar.service.ts` | day states, purchase markers |
+| `purchase.service.ts` | create/list purchases (manual and dca) |
 
-- DCA calculations
-- calendar generation
-- statistics calculations
-- purchase processing
-
-All business logic belongs here.
+All business logic belongs here. Worker calls the same services as API routes.
 
 ---
 
@@ -115,7 +131,7 @@ All business logic belongs here.
 
 Location:
 
-src/repositories
+`src/repositories/`
 
 Responsibilities:
 
@@ -123,6 +139,31 @@ Responsibilities:
 - Prisma queries
 
 Repositories hide Prisma from services.
+
+---
+
+## Worker Layer
+
+Location:
+
+`src/worker/`
+
+Responsibilities:
+
+- poll all `DcaStrategy` rows where `enabled` and `nextExecutionAt <= now()`
+- execute due strategies sequentially (one wallet)
+- execute swap via Odos per strategy
+- sign and send transaction (viem/ethers)
+- record purchase via `purchase.service.ts`
+- update timestamps for the executed strategy
+
+Must NOT:
+
+- duplicate purchase or DCA business logic
+- access Prisma directly — only through repositories via services
+- expose HTTP endpoints
+
+Worker entry: `yarn worker` → `src/worker/index.ts`
 
 ---
 
@@ -138,29 +179,58 @@ Only repositories may access Prisma directly.
 
 Production runs on Coolify with Nixpacks.
 
+Two services, one shared PostgreSQL database.
+
 ## Database
 
 - PostgreSQL 16 (managed Postgres resource in Coolify)
 - `DATABASE_URL` — internal Postgres connection string
-- Migrations applied automatically on app start via `prisma migrate deploy`
+- Migrations applied on dashboard start via `prisma migrate deploy`
 
-## Environment Variables
+## Service 1: Dashboard
 
-- `DATABASE_URL` — PostgreSQL connection string
-- `DAILY_AMOUNT_USD` — daily DCA amount in USD (default `20`)
+| Setting | Value |
+|---------|-------|
+| Name | `btc-dca-dashboard` |
+| Type | Next.js |
+| Start command | `yarn start` |
+
+Environment:
+
+- `DATABASE_URL`
+- `DAILY_AMOUNT_USD` (default `20`)
+
+Must NOT include `WALLET_PRIVATE_KEY`.
+
+## Service 2: Worker
+
+| Setting | Value |
+|---------|-------|
+| Name | `btc-dca-worker` |
+| Type | Node.js |
+| Start command | `yarn worker` |
+
+Environment:
+
+- `DATABASE_URL`
+- `ARBITRUM_RPC_URL`
+- `WALLET_PRIVATE_KEY`
+- `ODOS_API_KEY`
 
 ## Local Development
 
 - `docker compose up -d` — local PostgreSQL
 - `yarn db:migrate` — apply migrations in development
+- `yarn dev` — dashboard
+- `yarn worker` — worker (separate terminal)
 
 ## Coolify Setup
 
-1. Create a PostgreSQL database resource (version 16)
-2. Link it to the app and set `DATABASE_URL` to the internal URL
-3. Set `DAILY_AMOUNT_USD` in app environment variables
-4. Push to `master` — Coolify builds via Nixpacks and starts the app
-5. On start, `prisma migrate deploy` creates/updates tables automatically
+1. Create PostgreSQL 16 resource
+2. Create dashboard service, link DB, set `DATABASE_URL` and `DAILY_AMOUNT_USD`
+3. Create worker service from same repo, link same DB, set worker env vars
+4. Push to `master` — both services build via Nixpacks
+5. Dashboard runs `prisma migrate deploy` on start
 
 ---
 
@@ -168,22 +238,62 @@ Production runs on Coolify with Nixpacks.
 
 ## Purchase
 
-Represents a Bitcoin purchase.
+Represents a Bitcoin purchase (manual or automated).
+
+Stored fields:
+
+- id
+- date
+- amountUsdt (stablecoin amount; on-chain token is USDC)
+- btcPrice
+- source (`manual` | `dca`)
+- strategyId (optional FK to `DcaStrategy`; set for `dca` purchases)
+- notes
+- createdAt
+
+Derived at read time (not in DB):
+
+- btcAmount = amountUsdt / btcPrice
+
+Used by `dca.service.ts` for total BTC and average entry price.
+
+Planned migration: drop `btcAmount` column from `Purchase` — it is redundant with `amountUsdt` and `btcPrice`.
+
+---
+
+## DcaStrategy
+
+Bot execution configuration. **Multiple rows** — one per independent swap schedule.
 
 Fields:
 
 - id
-- date
-- amountUsdt
-- btcPrice
-- btcAmount
-- source
-- notes
-- createdAt
+- enabled
+- amountUsdc (USDC per swap)
+- intervalHours
+- lastExecutionAt
+- nextExecutionAt
+
+Scheduling rule (per strategy):
+
+```
+enabled AND nextExecutionAt <= now() → execute swap for this strategy
+```
+
+Worker fetches all matching rows each poll cycle and processes them **sequentially** (shared wallet, nonce safety).
+
+After success:
+
+```
+lastExecutionAt = now()
+nextExecutionAt = now() + intervalHours
+```
+
+Purchases from bot link back via optional `strategyId` FK on `Purchase`.
 
 ---
 
-## DCA Plan Configuration
+## DCA Plan Configuration (dashboard)
 
 Environment variables and derived values:
 
@@ -194,11 +304,72 @@ When there are no purchases yet, the calendar shows all days as neutral and sche
 
 ---
 
+# DCA Bot Execution Cycle
+
+```
+┌─────────────┐
+│   Worker    │  every 60s
+│   poll DB   │
+└──────┬──────┘
+       │ all strategies: enabled AND nextExecutionAt <= now()
+       ▼
+┌─────────────┐
+│ For each    │  sequential (nonce safety)
+│ due strategy│◄──┐
+└──────┬──────┘   │
+       ▼          │
+┌─────────────┐   │
+│ Odos quote  │   │
+│ + assemble  │   │
+└──────┬──────┘   │
+       ▼          │
+┌─────────────┐   │
+│ Sign & send │   │
+│ transaction │   │
+└──────┬──────┘   │
+       ▼          │
+┌─────────────┐   │
+│ Wait for    │   │
+│ confirmation│   │
+└──────┬──────┘   │
+       ▼          │
+┌─────────────┐   │
+│ purchase    │   │
+│ .service    │   │
+└──────┬──────┘   │
+       ▼          │
+┌─────────────┐   │
+│ Update      │   │
+│ DcaStrategy │───┘ next strategy
+└─────────────┘
+```
+
+Calendar and dashboard metrics update automatically from new `Purchase` rows.
+
+---
+
+# Swap Integration (Odos)
+
+Provider: **Odos** (primary, Arbitrum).
+
+Two-step API flow:
+
+1. `POST /sor/quote/v3` — get route and `pathId`
+2. `POST /sor/assemble` — get `transaction` (`to`, `data`, `value`, gas)
+
+Worker signs assembled transaction and broadcasts via Arbitrum RPC.
+
+Abstraction: `src/worker/swap/odos.client.ts` wraps HTTP calls; `swap.service.ts` orchestrates quote → sign → send. Swap provider interface allows future fallback without changing purchase logic.
+
+`pathId` must be assembled promptly after quote (do not cache quotes).
+
+---
+
 # DCA Calculations
 
 All calculations belong to:
 
-services/dca.service.ts
+`services/dca.service.ts`
 
 Examples:
 
@@ -218,7 +389,7 @@ No React component may implement these formulas.
 
 All calendar generation belongs to:
 
-services/calendar.service.ts
+`services/calendar.service.ts`
 
 Responsibilities:
 
@@ -231,18 +402,6 @@ UI receives already prepared calendar data.
 
 ---
 
-# Future Integrations
-
-Future DCA bot will use:
-
-POST /api/purchases
-
-Application architecture must allow automatic purchase insertion without changing existing business logic.
-
-Bot should interact only with API layer.
-
----
-
 # Design Principles
 
 Prefer:
@@ -251,6 +410,7 @@ Prefer:
 - explicit code
 - small files
 - predictable structure
+- shared services between dashboard and worker
 
 Avoid:
 
@@ -260,5 +420,7 @@ Avoid:
 - event sourcing
 - CQRS
 - microservices
+- separate bot repository
+- smart contracts for personal DCA
 
 This project should remain maintainable by a single developer.

@@ -8,11 +8,24 @@ alwaysApply: true
 Личное веб-приложение для отслеживания выполнения DCA-плана по Bitcoin.
 Не portfolio tracker — фокус на schedule execution и covered days.
 
+Фоновый DCA-бот (worker) автоматически свапает USDC → WBTC на Arbitrum и пишет покупки в ту же БД.
+
 ## Ограничения
 
 - Single-user, без внутренней auth (Cloudflare Zero Trust)
-- MVP: responsive web, PostgreSQL, без уведомлений и бирж
-- Non-goals: оценка портфеля, биржи, multi-user, уведомления, native app
+- MVP: responsive web, PostgreSQL, worker, без уведомлений и CEX
+- Non-goals: оценка портфеля, CEX, смарт-контракты, multi-user, уведомления, native app
+
+## Архитектура процессов
+
+Один репозиторий, одна PostgreSQL, два процесса:
+
+- **Dashboard** — Next.js (`yarn dev` / `yarn start`)
+- **Worker** — Node.js (`yarn worker`), `src/worker/`
+
+Бот не ходит в HTTP API дашборда — использует те же `services/` и `repositories/`.
+
+Swap: **Odos** на Arbitrum. Приватный ключ только в env worker-контейнера.
 
 ## Приоритеты UI
 
@@ -21,7 +34,7 @@ alwaysApply: true
 
 ## Стек
 
-Next.js App Router · TypeScript · Tailwind · shadcn/ui · Prisma · PostgreSQL · React Query · Zod · Vitest
+Next.js App Router · TypeScript · Tailwind · shadcn/ui · Prisma · PostgreSQL · React Query · Zod · Vitest · viem (worker)
 
 Зависимости — через `yarn`, не npm.
 
@@ -29,16 +42,20 @@ Next.js App Router · TypeScript · Tailwind · shadcn/ui · Prisma · PostgreSQ
 
 UI (`components/`, `app/`) → API (`app/api/`) → Services (`services/`) → Repositories (`repositories/`) → Prisma
 
+Worker (`src/worker/`) → Services → Repositories → Prisma
+
 - UI: только рендер и взаимодействие
 - API: тонкий слой — Zod-валидация, вызов services
-- Services: вся бизнес-логика
+- Services: вся бизнес-логика (общая для dashboard и worker)
 - Repositories: единственное место для Prisma-запросов
+- Worker: polling due `DcaStrategy` rows, swap через Odos, запись Purchase
 
 ## Принципы
 
 - Простейшее решение, без overengineering и DI-фреймворков
 - DCA-метрики — `dca.service.ts`, календарь — `calendar.service.ts`
 - Файлы < 300 строк, composition over inheritance
+- Отдельный DCA-кошелёк с ограниченным балансом
 
 ## Документация
 

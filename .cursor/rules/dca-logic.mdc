@@ -10,7 +10,7 @@ alwaysApply: false
 |------|-----------------|
 | `dca.service.ts` | total invested, total BTC, average price, covered/expected days, behind/ahead |
 | `calendar.service.ts` | day states, covered/missed days, purchase markers |
-| `purchase.service.ts` | обработка покупок, вызов repository |
+| `purchase.service.ts` | обработка покупок (manual и dca), вызов repository |
 
 # Формулы (только в `dca.service.ts`)
 
@@ -18,10 +18,18 @@ alwaysApply: false
 - `averagePrice = totalInvested / totalAccumulatedBTC`
 - Covered days **не зависят** от дат покупок
 
+# DCA Bot
+
+- Worker вызывает `purchase.service.ts` после on-chain swap — не дублировать логику создания Purchase
+- Несколько `DcaStrategy` в БД; worker обрабатывает все due-стратегии за poll-цикл, последовательно (один кошелёк)
+- `DAILY_AMOUNT_USD` (env) — для covered days на дашборде; `DcaStrategy.amountUsdc` — сумма одного свапа бота
+- Covered days не зависят от расписания бота
+
 # Запреты
 
 - Не считать метрики в React-компонентах и API routes
 - Не обращаться к Prisma из services — только через repositories
+- Не писать покупки из worker напрямую в repository — только через `purchase.service.ts`
 
 # Тесты (Vitest)
 

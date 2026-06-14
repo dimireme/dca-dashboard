@@ -41,22 +41,16 @@ Open [http://localhost:3000](http://localhost:3000).
 - `yarn db:migrate` — apply database migrations (development)
 - `yarn db:migrate:deploy` — apply migrations (production/CI)
 
-## API
+## Processes
 
-Bot integration endpoint:
+Two processes share one PostgreSQL database:
 
-```http
-POST /api/purchases
-Content-Type: application/json
+- **Dashboard** — `yarn dev` / `yarn start` (manual purchases, calendar, strategies)
+- **Worker** — `yarn worker` (USDC → WBTC swaps on Arbitrum via Odos, then writes `Purchase` with `source = dca`)
 
-{
-  "amountUsdt": 300,
-  "btcPrice": 98000,
-  "source": "dca"
-}
-```
+The worker does **not** call the dashboard HTTP API. It uses the same `services/` and `repositories/` as the app and writes to the DB directly.
 
-Optional `date` field for manual backfills. When omitted, the server uses today's date.
+`POST /api/purchases` is for the dashboard UI (manual / backfill purchases), not for the bot.
 
 ## Project docs
 
