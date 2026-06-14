@@ -4,7 +4,7 @@ globs: prisma/**,src/repositories/**,src/lib/prisma.ts
 alwaysApply: false
 ---
 
-- SQLite для MVP, изменения схемы — только через Prisma migrations
+- PostgreSQL, изменения схемы — только через Prisma migrations
 - Prisma-запросы — только в `src/repositories/`, не в services и не в API
 
 # Доменные модели

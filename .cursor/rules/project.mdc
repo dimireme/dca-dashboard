@@ -11,7 +11,7 @@ alwaysApply: true
 ## Ограничения
 
 - Single-user, без внутренней auth (Cloudflare Zero Trust)
-- MVP: responsive web, SQLite, без уведомлений и бирж
+- MVP: responsive web, PostgreSQL, без уведомлений и бирж
 - Non-goals: оценка портфеля, биржи, multi-user, уведомления, native app
 
 ## Приоритеты UI
@@ -21,7 +21,7 @@ alwaysApply: true
 
 ## Стек
 
-Next.js App Router · TypeScript · Tailwind · shadcn/ui · Prisma · SQLite · React Query · Zod · Vitest
+Next.js App Router · TypeScript · Tailwind · shadcn/ui · Prisma · PostgreSQL · React Query · Zod · Vitest
 
 Зависимости — через `yarn`, не npm.
 

@@ -128,9 +128,40 @@ Repositories hide Prisma from services.
 
 ## Persistence Layer
 
-Prisma + SQLite.
+Prisma + PostgreSQL.
 
 Only repositories may access Prisma directly.
+
+---
+
+# Deployment
+
+Production runs on Coolify with Nixpacks.
+
+## Database
+
+- PostgreSQL 16 (managed Postgres resource in Coolify)
+- `DATABASE_URL` — internal Postgres connection string
+- Migrations applied automatically on app start via `prisma migrate deploy`
+
+## Environment Variables
+
+- `DATABASE_URL` — PostgreSQL connection string
+- `DAILY_AMOUNT_USD` — daily DCA amount in USD (default `20`)
+
+## Local Development
+
+- `docker compose up -d` — local PostgreSQL
+- `yarn db:migrate` — apply migrations in development
+- `yarn db:import-sqlite` — one-time import from legacy `dev.db`
+
+## Coolify Setup
+
+1. Create a PostgreSQL database resource (version 16)
+2. Link it to the app and set `DATABASE_URL` to the internal URL
+3. Set `DAILY_AMOUNT_USD` in app environment variables
+4. Push to `master` — Coolify builds via Nixpacks and starts the app
+5. On start, `prisma migrate deploy` creates/updates tables automatically
 
 ---
 

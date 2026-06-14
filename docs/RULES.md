@@ -19,7 +19,7 @@ Prefer readability over abstraction.
 - Tailwind CSS
 - shadcn/ui
 - Prisma
-- SQLite for MVP
+- PostgreSQL
 - React Query
 - Zod
 
