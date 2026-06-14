@@ -257,8 +257,6 @@ Derived at read time (not in DB):
 
 Used by `dca.service.ts` for total BTC and average entry price.
 
-Planned migration: drop `btcAmount` column from `Purchase` — it is redundant with `amountUsdt` and `btcPrice`.
-
 ---
 
 ## DcaStrategy

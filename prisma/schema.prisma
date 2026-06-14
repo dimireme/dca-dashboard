@@ -12,7 +12,6 @@ model Purchase {
   date       DateTime
   amountUsdt Float
   btcPrice   Float
-  btcAmount  Float
   source     String
   notes      String?
   createdAt  DateTime @default(now())

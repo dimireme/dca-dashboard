@@ -11,8 +11,8 @@ import {
 
 describe("dca.service", () => {
   const purchases = [
-    { amountUsdt: 300, btcAmount: 300 / 98000 },
-    { amountUsdt: 620, btcAmount: 620 / 100000 },
+    { amountUsdt: 300, btcPrice: 98000 },
+    { amountUsdt: 620, btcPrice: 100000 },
   ];
 
   it("calculates average price", () => {

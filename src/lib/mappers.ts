@@ -8,7 +8,7 @@ export function mapPurchase(record: PrismaPurchase): Purchase {
     date: fromDbDate(record.date),
     amountUsdt: record.amountUsdt,
     btcPrice: record.btcPrice,
-    btcAmount: record.btcAmount,
+    btcAmount: record.amountUsdt / record.btcPrice,
     source: record.source as PurchaseSource,
     notes: record.notes,
     createdAt: record.createdAt.toISOString(),

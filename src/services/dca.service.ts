@@ -4,8 +4,8 @@ export function calculateTotalInvested(purchases: Pick<Purchase, "amountUsdt">[]
   return purchases.reduce((sum, purchase) => sum + purchase.amountUsdt, 0);
 }
 
-export function calculateTotalBtc(purchases: Pick<Purchase, "btcAmount">[]): number {
-  return purchases.reduce((sum, purchase) => sum + purchase.btcAmount, 0);
+export function calculateTotalBtc(purchases: Pick<Purchase, "amountUsdt" | "btcPrice">[]): number {
+  return purchases.reduce((sum, purchase) => sum + purchase.amountUsdt / purchase.btcPrice, 0);
 }
 
 export function calculateAveragePrice(totalInvested: number, totalBtc: number): number | null {
