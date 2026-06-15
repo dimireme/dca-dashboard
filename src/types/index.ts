@@ -73,3 +73,26 @@ export interface CreatePurchaseRangeResult {
   endDate: string;
   btcPrice: number;
 }
+
+export interface DcaStrategy {
+  id: string;
+  enabled: boolean;
+  amountUsdc: number;
+  intervalHours: number;
+  lastExecutionAt: string | null;
+  nextExecutionAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateStrategyInput {
+  amountUsdc: number;
+  intervalHours: number;
+  enabled?: boolean;
+}
+
+export interface UpdateStrategyInput {
+  amountUsdc?: number;
+  intervalHours?: number;
+  enabled?: boolean;
+}

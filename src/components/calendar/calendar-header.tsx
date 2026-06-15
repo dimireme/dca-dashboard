@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -17,21 +18,29 @@ export function CalendarYearHeader({
   onNext,
 }: CalendarYearHeaderProps) {
   return (
-    <div className="flex items-center gap-4">
-      <h2 className="text-xl font-semibold">{year}</h2>
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon-sm"
-          onClick={onPrevious}
-        >
-          <ChevronLeft className="size-4" />
-        </Button>
-        <Button type="button" variant="outline" size="icon-sm" onClick={onNext}>
-          <ChevronRight className="size-4" />
-        </Button>
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-4">
+        <h2 className="text-xl font-semibold">{year}</h2>
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-sm"
+            onClick={onPrevious}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+          <Button type="button" variant="outline" size="icon-sm" onClick={onNext}>
+            <ChevronRight className="size-4" />
+          </Button>
+        </div>
       </div>
+      <Link
+        href="/strategies"
+        className="text-sm text-muted-foreground hover:text-foreground"
+      >
+        Strategies
+      </Link>
     </div>
   );
 }

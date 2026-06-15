@@ -7,12 +7,26 @@ datasource db {
   provider = "postgresql"
 }
 
+model DcaStrategy {
+  id              String    @id @default(cuid())
+  enabled         Boolean   @default(true)
+  amountUsdc      Float
+  intervalHours   Int
+  lastExecutionAt DateTime?
+  nextExecutionAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  purchases       Purchase[]
+}
+
 model Purchase {
-  id         String   @id @default(cuid())
+  id         String       @id @default(cuid())
   date       DateTime
   amountUsdt Float
   btcPrice   Float
   source     String
   notes      String?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime     @default(now())
+  strategyId String?
+  strategy   DcaStrategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
 }

@@ -33,3 +33,21 @@ export function formatDate(dateKey: string): string {
     day: "numeric",
   }).format(new Date(year, month - 1, day));
 }
+
+export function formatDateTime(iso: string | null): string {
+  if (!iso) {
+    return "—";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(iso));
+}
+
+export function formatStrategySummary(amountUsdc: number, intervalHours: number): string {
+  return `${formatUsdt(amountUsdc)} · every ${intervalHours}h`;
+}

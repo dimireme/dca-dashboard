@@ -25,9 +25,12 @@ export function PurchaseList({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {purchases.map((purchase) => (
-        <div key={purchase.id} className="space-y-1 rounded-lg border p-2">
+        <div
+          key={purchase.id}
+          className="space-y-2 rounded-xl border-2 border-border/60 bg-card p-3 shadow-md ring-1 ring-foreground/5"
+        >
           <div className="flex items-center gap-2">
             <Badge variant="default">
               {purchase.source === 'dca' ? 'DCA' : 'Manual'}
