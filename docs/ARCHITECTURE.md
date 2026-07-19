@@ -215,14 +215,14 @@ Environment:
 - `DATABASE_URL`
 - `ARBITRUM_RPC_URL`
 - `WALLET_PRIVATE_KEY`
-- `ODOS_API_KEY`
+- `ODOS_API_KEY` (optional — public `https://api.odos.xyz` works without it)
 
 ## Local Development
 
 - `docker compose up -d` — local PostgreSQL
 - `yarn db:migrate` — apply migrations in development
 - `yarn dev` — dashboard
-- `yarn worker` — worker (separate terminal)
+- `yarn worker` — worker (separate terminal; needs worker env vars in `.env`)
 
 ## Coolify Setup
 

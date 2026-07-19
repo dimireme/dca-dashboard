@@ -10,6 +10,7 @@ Personal web app for tracking Bitcoin DCA schedule execution and purchase histor
 - Prisma + PostgreSQL
 - React Query
 - Vitest
+- viem (worker)
 
 ## Setup
 
@@ -28,9 +29,16 @@ yarn dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+In a second terminal (after filling worker env vars in `.env`):
+
+```bash
+yarn worker
+```
+
 ## Scripts
 
 - `yarn dev` — start development server
+- `yarn worker` — start DCA swap worker
 - `yarn build` — production build
 - `yarn start` — apply migrations and start production server
 - `yarn lint` — ESLint

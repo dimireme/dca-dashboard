@@ -15,6 +15,38 @@ export async function findAllStrategies(): Promise<DcaStrategy[]> {
   return mapStrategies(records);
 }
 
+export async function findDueStrategies(now = new Date()): Promise<DcaStrategy[]> {
+  const records = await prisma.dcaStrategy.findMany({
+    where: {
+      enabled: true,
+      nextExecutionAt: { lte: now },
+    },
+    orderBy: [{ nextExecutionAt: "asc" }],
+  });
+
+  return mapStrategies(records);
+}
+
+export async function markStrategyExecutedRecord(
+  id: string,
+  lastExecutionAt: Date,
+  nextExecutionAt: Date,
+): Promise<DcaStrategy | null> {
+  try {
+    const record = await prisma.dcaStrategy.update({
+      where: { id },
+      data: {
+        lastExecutionAt,
+        nextExecutionAt,
+      },
+    });
+
+    return mapStrategy(record);
+  } catch {
+    return null;
+  }
+}
+
 export async function findStrategyById(id: string): Promise<DcaStrategy | null> {
   const record = await prisma.dcaStrategy.findUnique({ where: { id } });
   return record ? mapStrategy(record) : null;

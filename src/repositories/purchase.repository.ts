@@ -52,6 +52,7 @@ export async function createPurchases(
       btcPrice: input.btcPrice,
       source: input.source,
       notes: input.notes ?? null,
+      strategyId: input.strategyId ?? null,
     })),
   });
 
@@ -66,6 +67,7 @@ export async function createPurchase(input: CreatePurchaseInput & { date: string
       btcPrice: input.btcPrice,
       source: input.source,
       notes: input.notes ?? null,
+      strategyId: input.strategyId ?? null,
     },
   });
 

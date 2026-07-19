@@ -49,6 +49,7 @@ export interface CreatePurchaseInput {
   btcPrice: number;
   source: PurchaseSource;
   notes?: string;
+  strategyId?: string;
 }
 
 export interface UpdatePurchaseInput {

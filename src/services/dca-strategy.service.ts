@@ -6,7 +6,9 @@ import {
   createStrategyRecord,
   deleteStrategyRecord,
   findAllStrategies,
+  findDueStrategies,
   findStrategyById,
+  markStrategyExecutedRecord,
   updateStrategyRecord,
 } from "@/repositories/dca-strategy.repository";
 import type { CreateStrategyInput, DcaStrategy, UpdateStrategyInput } from "@/types";
@@ -18,6 +20,10 @@ export {
 
 export async function listStrategies(): Promise<DcaStrategy[]> {
   return findAllStrategies();
+}
+
+export async function listDueStrategies(now = new Date()): Promise<DcaStrategy[]> {
+  return findDueStrategies(now);
 }
 
 export async function getStrategy(id: string): Promise<DcaStrategy | null> {
@@ -53,6 +59,15 @@ export async function updateStrategy(
   return updateStrategyRecord(id, input, {
     nextExecutionAt,
   });
+}
+
+export async function markStrategyExecuted(
+  id: string,
+  intervalHours: number,
+  executedAt = new Date(),
+): Promise<DcaStrategy | null> {
+  const nextExecutionAt = new Date(executedAt.getTime() + intervalHours * 60 * 60 * 1000);
+  return markStrategyExecutedRecord(id, executedAt, nextExecutionAt);
 }
 
 export async function deleteStrategy(id: string): Promise<boolean> {
