@@ -51,7 +51,7 @@ export async function createPurchases(
       amountUsdt: input.amountUsdt,
       btcPrice: input.btcPrice,
       source: input.source,
-      notes: input.notes ?? null,
+      txHash: input.txHash ?? null,
       strategyId: input.strategyId ?? null,
     })),
   });
@@ -66,7 +66,7 @@ export async function createPurchase(input: CreatePurchaseInput & { date: string
       amountUsdt: input.amountUsdt,
       btcPrice: input.btcPrice,
       source: input.source,
-      notes: input.notes ?? null,
+      txHash: input.txHash ?? null,
       strategyId: input.strategyId ?? null,
     },
   });
@@ -91,7 +91,7 @@ export async function updatePurchase(
       amountUsdt: input.amountUsdt,
       btcPrice: input.btcPrice,
       source: input.source,
-      notes: input.notes,
+      txHash: input.txHash,
     },
   });
 

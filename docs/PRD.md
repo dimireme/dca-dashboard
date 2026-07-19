@@ -75,7 +75,7 @@ Stored fields:
 - btc_price
 - source
 - strategy_id (optional; set for `dca` purchases, FK to `DcaStrategy`)
-- notes (optional)
+- tx_hash (optional; on-chain swap hash for `dca` purchases)
 
 Derived (not stored):
 
@@ -213,7 +213,7 @@ Flow per strategy execution:
    - Assemble transaction via Odos API
    - Sign and broadcast with worker wallet
    - Wait for confirmation
-   - Create `Purchase` via `purchase.service.ts` (`amountUsdt`, `btcPrice` = effective price, `source = dca`, `strategyId`)
+   - Create `Purchase` via `purchase.service.ts` (`amountUsdt`, `btcPrice` = effective price, `source = dca`, `strategyId`, `txHash`)
    - Update `lastExecutionAt` and `nextExecutionAt` for this strategy
 
 ### Scheduling

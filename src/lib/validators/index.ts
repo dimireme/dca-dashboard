@@ -8,7 +8,7 @@ export const createPurchaseSchema = z.object({
     (value) => (value === "" || value === null || value === undefined ? undefined : value),
     z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
   ),
-  notes: z.string().optional(),
+  txHash: z.string().optional(),
 });
 
 export const updatePurchaseSchema = z.object({
@@ -16,7 +16,7 @@ export const updatePurchaseSchema = z.object({
   amountUsdt: z.number().positive().optional(),
   btcPrice: z.number().positive().optional(),
   source: z.enum(["manual", "dca"]).optional(),
-  notes: z.string().nullable().optional(),
+  txHash: z.string().nullable().optional(),
 });
 
 export const calendarQuerySchema = z.object({
@@ -29,7 +29,6 @@ export const createPurchaseRangeSchema = z.object({
   dayCount: z.number().int().min(1).max(366),
   amountUsdtPerDay: z.number().positive(),
   totalBtcAmount: z.number().positive(),
-  notes: z.string().optional(),
 });
 
 export const purchasesQuerySchema = z.object({

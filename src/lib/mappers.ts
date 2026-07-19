@@ -10,7 +10,7 @@ export function mapPurchase(record: PrismaPurchase): Purchase {
     btcPrice: record.btcPrice,
     btcAmount: record.amountUsdt / record.btcPrice,
     source: record.source as PurchaseSource,
-    notes: record.notes,
+    txHash: record.txHash,
     createdAt: record.createdAt.toISOString(),
   };
 }

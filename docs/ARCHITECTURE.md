@@ -248,7 +248,7 @@ Stored fields:
 - btcPrice
 - source (`manual` | `dca`)
 - strategyId (optional FK to `DcaStrategy`; set for `dca` purchases)
-- notes
+- txHash (optional; on-chain swap hash for `dca` purchases)
 - createdAt
 
 Derived at read time (not in DB):

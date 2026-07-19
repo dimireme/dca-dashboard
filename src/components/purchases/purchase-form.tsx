@@ -30,7 +30,6 @@ export function PurchaseForm({
   const [amountUsdt, setAmountUsdt] = useState("");
   const [btcPrice, setBtcPrice] = useState("");
   const [source, setSource] = useState<PurchaseSource>("manual");
-  const [notes, setNotes] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -54,7 +53,6 @@ export function PurchaseForm({
       amountUsdt: amount,
       btcPrice: price,
       source,
-      notes: notes || undefined,
     });
   }
 
@@ -68,8 +66,6 @@ export function PurchaseForm({
       setBtcPrice={setBtcPrice}
       source={source}
       setSource={setSource}
-      notes={notes}
-      setNotes={setNotes}
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
@@ -89,7 +85,6 @@ export function PurchaseEditForm({
   const [amountUsdt, setAmountUsdt] = useState(purchase.amountUsdt.toString());
   const [btcPrice, setBtcPrice] = useState(purchase.btcPrice.toString());
   const [source, setSource] = useState<PurchaseSource>(purchase.source);
-  const [notes, setNotes] = useState(purchase.notes ?? "");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -99,7 +94,6 @@ export function PurchaseEditForm({
       amountUsdt: Number(amountUsdt),
       btcPrice: Number(btcPrice),
       source,
-      notes: notes || undefined,
     });
   }
 
@@ -113,8 +107,6 @@ export function PurchaseEditForm({
       setBtcPrice={setBtcPrice}
       source={source}
       setSource={setSource}
-      notes={notes}
-      setNotes={setNotes}
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
@@ -132,8 +124,6 @@ function PurchaseFormFields({
   setBtcPrice,
   source,
   setSource,
-  notes,
-  setNotes,
   onSubmit,
   onCancel,
   isSubmitting,
@@ -149,8 +139,6 @@ function PurchaseFormFields({
   setBtcPrice: (value: string) => void;
   source: PurchaseSource;
   setSource: (value: PurchaseSource) => void;
-  notes: string;
-  setNotes: (value: string) => void;
   onSubmit: (event: React.FormEvent) => Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
@@ -209,16 +197,6 @@ function PurchaseFormFields({
           <option value="manual">Manual</option>
           <option value="dca">DCA bot</option>
         </select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="purchase-notes">Notes</Label>
-        <Input
-          id="purchase-notes"
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          placeholder="Optional"
-        />
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}

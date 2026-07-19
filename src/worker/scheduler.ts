@@ -60,7 +60,7 @@ export class StrategyScheduler {
         btcPrice: result.effectiveBtcPrice,
         source: "dca",
         strategyId,
-        notes: `tx:${result.txHash}`,
+        txHash: result.txHash,
       });
 
       await markStrategyExecuted(strategyId, intervalHours);

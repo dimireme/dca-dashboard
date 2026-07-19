@@ -25,7 +25,7 @@ model Purchase {
   amountUsdt Float
   btcPrice   Float
   source     String
-  notes      String?
+  txHash     String?
   createdAt  DateTime     @default(now())
   strategyId String?
   strategy   DcaStrategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)

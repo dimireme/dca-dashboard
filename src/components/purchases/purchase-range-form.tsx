@@ -35,7 +35,6 @@ export function PurchaseRangeForm({
   const [dayCount, setDayCount] = useState("");
   const [amountUsdtPerDay, setAmountUsdtPerDay] = useState("");
   const [totalBtcAmount, setTotalBtcAmount] = useState("");
-  const [notes, setNotes] = useState("");
 
   const preview = useMemo(() => {
     const days = Number(dayCount);
@@ -90,7 +89,6 @@ export function PurchaseRangeForm({
       dayCount: days,
       amountUsdtPerDay: amount,
       totalBtcAmount: totalBtc,
-      notes: notes || undefined,
     });
   }
 
@@ -149,16 +147,6 @@ export function PurchaseRangeForm({
           value={totalBtcAmount}
           onChange={(event) => setTotalBtcAmount(event.target.value)}
           required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="range-notes">Notes</Label>
-        <Input
-          id="range-notes"
-          value={notes}
-          onChange={(event) => setNotes(event.target.value)}
-          placeholder="Optional"
         />
       </div>
 

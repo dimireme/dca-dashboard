@@ -11,4 +11,4 @@ alwaysApply: false
 
 **DcaStrategy:** enabled, amountUsdc, intervalHours, lastExecutionAt, nextExecutionAt — несколько строк, каждая со своим расписанием
 
-**Purchase:** date, amountUsdt, btcPrice, source (`manual` | `dca`), strategyId (для `dca`), notes. `btcAmount` вычисляется: `amountUsdt / btcPrice` — не хранить в БД.
+**Purchase:** date, amountUsdt, btcPrice, source (`manual` | `dca`), strategyId (для `dca`), txHash (для on-chain swap). `btcAmount` вычисляется: `amountUsdt / btcPrice` — не хранить в БД.

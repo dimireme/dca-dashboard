@@ -7,7 +7,7 @@ export interface Purchase {
   btcPrice: number;
   btcAmount: number;
   source: PurchaseSource;
-  notes: string | null;
+  txHash: string | null;
   createdAt: string;
 }
 
@@ -48,7 +48,7 @@ export interface CreatePurchaseInput {
   amountUsdt: number;
   btcPrice: number;
   source: PurchaseSource;
-  notes?: string;
+  txHash?: string;
   strategyId?: string;
 }
 
@@ -57,7 +57,7 @@ export interface UpdatePurchaseInput {
   amountUsdt?: number;
   btcPrice?: number;
   source?: PurchaseSource;
-  notes?: string | null;
+  txHash?: string | null;
 }
 
 export interface CreatePurchaseRangeInput {
@@ -65,7 +65,6 @@ export interface CreatePurchaseRangeInput {
   dayCount: number;
   amountUsdtPerDay: number;
   totalBtcAmount: number;
-  notes?: string;
 }
 
 export interface CreatePurchaseRangeResult {

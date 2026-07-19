@@ -6,7 +6,6 @@ export type PurchaseRangeParams = {
   dayCount: number;
   amountUsdtPerDay: number;
   totalBtcAmount: number;
-  notes?: string;
 };
 
 export function calculateRangeBtcPrice(
@@ -21,7 +20,7 @@ export function calculateRangeBtcPrice(
 export function buildPurchaseRangeRecords(
   params: PurchaseRangeParams,
 ): Array<CreatePurchaseInput & { date: string }> {
-  const { startDate, dayCount, amountUsdtPerDay, totalBtcAmount, notes } = params;
+  const { startDate, dayCount, amountUsdtPerDay, totalBtcAmount } = params;
   const btcPrice = calculateRangeBtcPrice(dayCount, amountUsdtPerDay, totalBtcAmount);
   const dates = generateDateRange(startDate, dayCount);
 
@@ -30,6 +29,5 @@ export function buildPurchaseRangeRecords(
     amountUsdt: amountUsdtPerDay,
     btcPrice,
     source: "dca" as const,
-    notes,
   }));
 }

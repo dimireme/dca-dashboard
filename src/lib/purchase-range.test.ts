@@ -24,7 +24,6 @@ describe("purchase-range", () => {
       dayCount: 2,
       amountUsdtPerDay: 20,
       totalBtcAmount: 0.0004,
-      notes: "historical import",
     });
 
     expect(records).toHaveLength(2);
@@ -33,14 +32,12 @@ describe("purchase-range", () => {
       amountUsdt: 20,
       btcPrice: 100_000,
       source: "dca",
-      notes: "historical import",
     });
     expect(records[1]).toEqual({
       date: "2026-02-02",
       amountUsdt: 20,
       btcPrice: 100_000,
       source: "dca",
-      notes: "historical import",
     });
   });
 });

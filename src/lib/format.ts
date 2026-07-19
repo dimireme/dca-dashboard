@@ -51,3 +51,12 @@ export function formatDateTime(iso: string | null): string {
 export function formatStrategySummary(amountUsdc: number, intervalHours: number): string {
   return `${formatUsdt(amountUsdc)} · every ${intervalHours}h`;
 }
+
+/** Shorten a hash with an ellipsis in the middle, e.g. 0x1234…abcd */
+export function formatTxHash(hash: string, head = 6, tail = 4): string {
+  if (hash.length <= head + tail + 1) {
+    return hash;
+  }
+
+  return `${hash.slice(0, head)}…${hash.slice(-tail)}`;
+}

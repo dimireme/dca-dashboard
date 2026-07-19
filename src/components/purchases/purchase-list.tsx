@@ -1,9 +1,10 @@
 'use client';
 
-import { Pencil, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { Check, Copy, Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatBtc, formatUsdt } from '@/lib/format';
+import { formatBtc, formatTxHash, formatUsdt } from '@/lib/format';
 import type { Purchase } from '@/types';
 
 type PurchaseListProps = {
@@ -36,15 +37,19 @@ export function PurchaseList({
               {purchase.source === 'dca' ? 'DCA' : 'Manual'}
             </Badge>
             <span className="font-medium">
-              {formatUsdt(purchase.amountUsdt)} ({formatBtc(purchase.btcAmount)})
+              {formatUsdt(purchase.amountUsdt)} ({formatBtc(purchase.btcAmount)}
+              )
             </span>
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-muted-foreground">
-              BTC price: {formatUsdt(purchase.btcPrice)}
-            </p>
+          <div className="flex gap-2">
+            <div className="min-w-0 flex-1 space-y-1">
+              <p className="text-base leading-7 text-muted-foreground">
+                BTC price: {formatUsdt(purchase.btcPrice)}
+              </p>
+              {purchase.txHash ? <TxHashRow hash={purchase.txHash} /> : null}
+            </div>
             {onEdit || onDelete ? (
-              <div className="flex shrink-0 gap-1">
+              <div className="flex shrink-0 items-end gap-1">
                 {onEdit ? (
                   <Button
                     type="button"
@@ -69,11 +74,41 @@ export function PurchaseList({
               </div>
             ) : null}
           </div>
-          {purchase.notes ? (
-            <p className="text-muted-foreground">{purchase.notes}</p>
-          ) : null}
         </div>
       ))}
+    </div>
+  );
+}
+
+function TxHashRow({ hash }: { hash: string }) {
+  const [copied, setCopied] = useState(false);
+
+  async function handleCopy() {
+    try {
+      await navigator.clipboard.writeText(hash);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard may be unavailable; ignore.
+    }
+  }
+
+  return (
+    <div className="flex h-7 items-center gap-1 text-base leading-7 text-muted-foreground">
+      <span title={hash}>tx: {formatTxHash(hash)}</span>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        onClick={handleCopy}
+        aria-label={copied ? 'Copied' : 'Copy transaction hash'}
+      >
+        {copied ? (
+          <Check className="size-3.5" />
+        ) : (
+          <Copy className="size-3.5" />
+        )}
+      </Button>
     </div>
   );
 }
