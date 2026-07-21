@@ -1,6 +1,19 @@
 import type { DcaStrategy as PrismaDcaStrategy, Purchase as PrismaPurchase } from "@/generated/prisma/client";
 import { fromDbDate } from "@/lib/dates";
-import type { DcaStrategy, Purchase, PurchaseSource } from "@/types";
+import type {
+  DcaStrategy,
+  Purchase,
+  PurchaseSource,
+  StrategyTradeSummary,
+} from "@/types";
+
+export function emptyStrategySummary(): StrategyTradeSummary {
+  return {
+    purchaseCount: 0,
+    totalInvested: 0,
+    averagePrice: null,
+  };
+}
 
 export function mapPurchase(record: PrismaPurchase): Purchase {
   return {
@@ -29,6 +42,7 @@ export function mapStrategy(record: PrismaDcaStrategy): DcaStrategy {
     nextExecutionAt: record.nextExecutionAt?.toISOString() ?? null,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
+    summary: emptyStrategySummary(),
   };
 }
 

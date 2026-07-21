@@ -74,6 +74,12 @@ export interface CreatePurchaseRangeResult {
   btcPrice: number;
 }
 
+export interface StrategyTradeSummary {
+  purchaseCount: number;
+  totalInvested: number;
+  averagePrice: number | null;
+}
+
 export interface DcaStrategy {
   id: string;
   enabled: boolean;
@@ -83,6 +89,7 @@ export interface DcaStrategy {
   nextExecutionAt: string | null;
   createdAt: string;
   updatedAt: string;
+  summary: StrategyTradeSummary;
 }
 
 export interface CreateStrategyInput {

@@ -5,7 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { formatDateTime, formatStrategySummary } from '@/lib/format';
+import {
+  formatDateTime,
+  formatStrategySummary,
+  formatUsdWhole,
+  formatUsdt,
+} from '@/lib/format';
 import type { DcaStrategy } from '@/types';
 
 type StrategyListProps = {
@@ -34,19 +39,19 @@ export function StrategyList({
       {strategies.map((strategy) => (
         <div
           key={strategy.id}
-          className="space-y-2 rounded-xl border-2 border-border/60 bg-card p-3 shadow-md ring-1 ring-foreground/5"
+          className="grid gap-3 rounded-xl border-2 border-border/60 bg-card p-3 shadow-md ring-1 ring-foreground/5 sm:grid-cols-3 sm:items-stretch"
         >
-          <div className="flex items-center gap-2">
-            <Badge>{strategy.enabled ? 'Active' : 'Paused'}</Badge>
-            <span className="font-medium">
-              {formatStrategySummary(
-                strategy.amountUsdc,
-                strategy.intervalHours,
-              )}
-            </span>
-          </div>
+          <div className="space-y-2 min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge>{strategy.enabled ? 'Active' : 'Paused'}</Badge>
+              <span className="font-medium">
+                {formatStrategySummary(
+                  strategy.amountUsdc,
+                  strategy.intervalHours,
+                )}
+              </span>
+            </div>
 
-          <div className="flex items-end justify-between gap-2">
             <div className="space-y-1 text-sm text-muted-foreground">
               <p>Last run: {formatDateTime(strategy.lastExecutionAt)}</p>
               <p>Next run: {formatDateTime(strategy.nextExecutionAt)}</p>
@@ -67,33 +72,52 @@ export function StrategyList({
                 </div>
               ) : null}
             </div>
-
-            {onEdit || onDelete ? (
-              <div className="flex shrink-0 gap-1">
-                {onEdit ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onEdit(strategy)}
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                ) : null}
-                {onDelete ? (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => onDelete(strategy)}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="size-4" />
-                  </Button>
-                ) : null}
-              </div>
-            ) : null}
           </div>
+
+          <div className="grid w-fit grid-cols-[auto_auto] gap-x-3 gap-y-1 self-end text-sm">
+            <div className="text-muted-foreground">Purchases:</div>
+            <div className="font-medium tabular-nums">
+              {strategy.summary.purchaseCount}
+            </div>
+            <div className="text-muted-foreground">Spent:</div>
+            <div className="font-medium tabular-nums">
+              {formatUsdt(strategy.summary.totalInvested)}
+            </div>
+            <div className="text-muted-foreground">Avg price:</div>
+            <div className="font-medium tabular-nums">
+              {strategy.summary.averagePrice !== null
+                ? formatUsdWhole(strategy.summary.averagePrice)
+                : '—'}
+            </div>
+          </div>
+
+          {onEdit || onDelete ? (
+            <div className="flex shrink-0 gap-1 self-end sm:justify-end">
+              {onEdit ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onEdit(strategy)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              ) : null}
+              {onDelete ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => onDelete(strategy)}
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              ) : null}
+            </div>
+          ) : (
+            <div />
+          )}
         </div>
       ))}
     </div>

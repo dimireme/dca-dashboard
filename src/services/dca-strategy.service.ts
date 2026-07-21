@@ -11,7 +11,9 @@ import {
   markStrategyExecutedRecord,
   updateStrategyRecord,
 } from "@/repositories/dca-strategy.repository";
+import { findPurchaseAmountsByStrategyIds } from "@/repositories/purchase.repository";
 import type { CreateStrategyInput, DcaStrategy, UpdateStrategyInput } from "@/types";
+import { buildStrategyTradeSummary } from "./dca.service";
 
 export {
   resolveNextExecutionAtForCreate,
@@ -19,7 +21,28 @@ export {
 } from "@/lib/dca-strategy-schedule";
 
 export async function listStrategies(): Promise<DcaStrategy[]> {
-  return findAllStrategies();
+  const strategies = await findAllStrategies();
+  const purchases = await findPurchaseAmountsByStrategyIds(
+    strategies.map((strategy) => strategy.id),
+  );
+
+  const purchasesByStrategy = new Map<
+    string,
+    Array<{ amountUsdt: number; btcPrice: number }>
+  >();
+
+  for (const purchase of purchases) {
+    const list = purchasesByStrategy.get(purchase.strategyId) ?? [];
+    list.push(purchase);
+    purchasesByStrategy.set(purchase.strategyId, list);
+  }
+
+  return strategies.map((strategy) => ({
+    ...strategy,
+    summary: buildStrategyTradeSummary(
+      purchasesByStrategy.get(strategy.id) ?? [],
+    ),
+  }));
 }
 
 export async function listDueStrategies(now = new Date()): Promise<DcaStrategy[]> {

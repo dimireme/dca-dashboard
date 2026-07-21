@@ -1,4 +1,4 @@
-import type { Purchase } from "@/types";
+import type { Purchase, StrategyTradeSummary } from "@/types";
 
 export function calculateTotalInvested(purchases: Pick<Purchase, "amountUsdt">[]): number {
   return purchases.reduce((sum, purchase) => sum + purchase.amountUsdt, 0);
@@ -14,6 +14,19 @@ export function calculateAveragePrice(totalInvested: number, totalBtc: number): 
   }
 
   return totalInvested / totalBtc;
+}
+
+export function buildStrategyTradeSummary(
+  purchases: Array<{ amountUsdt: number; btcPrice: number }>,
+): StrategyTradeSummary {
+  const totalInvested = calculateTotalInvested(purchases);
+  const totalBtc = calculateTotalBtc(purchases);
+
+  return {
+    purchaseCount: purchases.length,
+    totalInvested,
+    averagePrice: calculateAveragePrice(totalInvested, totalBtc),
+  };
 }
 
 export function calculateCoveredDays(totalInvested: number, dailyAmount: number): number {

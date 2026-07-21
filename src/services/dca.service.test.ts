@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { DAILY_AMOUNT_USD } from "@/lib/dca-config";
 import {
+  buildStrategyTradeSummary,
   calculateAveragePrice,
   calculateCoveredDays,
   calculateExpectedDays,
@@ -21,6 +22,28 @@ describe("dca.service", () => {
 
     expect(totalInvested).toBe(920);
     expect(calculateAveragePrice(totalInvested, totalBtc)).toBeCloseTo(920 / totalBtc, 8);
+  });
+
+  it("builds empty strategy trade summary", () => {
+    expect(buildStrategyTradeSummary([])).toEqual({
+      purchaseCount: 0,
+      totalInvested: 0,
+      averagePrice: null,
+    });
+  });
+
+  it("builds strategy trade summary from purchases", () => {
+    const summary = buildStrategyTradeSummary([
+      { amountUsdt: 100, btcPrice: 100_000 },
+      { amountUsdt: 200, btcPrice: 80_000 },
+    ]);
+
+    expect(summary.purchaseCount).toBe(2);
+    expect(summary.totalInvested).toBe(300);
+    expect(summary.averagePrice).toBeCloseTo(
+      300 / (100 / 100_000 + 200 / 80_000),
+      8,
+    );
   });
 
   it("calculates covered days from total invested", () => {

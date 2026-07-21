@@ -38,6 +38,35 @@ export async function findPurchaseById(id: string): Promise<Purchase | null> {
   return record ? mapPurchase(record) : null;
 }
 
+export async function findPurchaseAmountsByStrategyIds(
+  strategyIds: string[],
+): Promise<Array<{ strategyId: string; amountUsdt: number; btcPrice: number }>> {
+  if (strategyIds.length === 0) {
+    return [];
+  }
+
+  const records = await prisma.purchase.findMany({
+    where: { strategyId: { in: strategyIds } },
+    select: {
+      strategyId: true,
+      amountUsdt: true,
+      btcPrice: true,
+    },
+  });
+
+  return records.flatMap((record) =>
+    record.strategyId
+      ? [
+          {
+            strategyId: record.strategyId,
+            amountUsdt: record.amountUsdt,
+            btcPrice: record.btcPrice,
+          },
+        ]
+      : [],
+  );
+}
+
 export async function createPurchases(
   inputs: Array<CreatePurchaseInput & { date: string }>,
 ): Promise<number> {
