@@ -8,6 +8,7 @@ import {
 } from "@/worker/swap/pricing";
 import { WBTC_ADDRESS } from "@/worker/swap/tokens";
 import {
+  assertFundsForSwap,
   createWorkerClients,
   ensureUsdcAllowance,
   readWbtcBalance,
@@ -38,6 +39,9 @@ export class SwapService {
 
   async swapUsdcToWbtc(amountUsdc: number): Promise<SwapResult> {
     const amountBaseUnits = usdcToBaseUnits(amountUsdc);
+
+    // RPC-only: skip Odos when wallet cannot fund the swap / gas.
+    await assertFundsForSwap(this.clients, amountBaseUnits);
 
     const quote = await this.odos.quote({
       userAddr: this.clients.address,

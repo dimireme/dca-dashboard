@@ -13,6 +13,11 @@ import {
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { arbitrum } from "viem/chains";
+import {
+  estimateRequiredEthWei,
+  formatInsufficientEthError,
+  formatInsufficientUsdcError,
+} from "@/worker/swap/preflight";
 import { USDC_ADDRESS } from "@/worker/swap/tokens";
 
 export type WorkerClients = {
@@ -59,6 +64,44 @@ export async function readWbtcBalance(
     functionName: "balanceOf",
     args: [owner],
   });
+}
+
+export async function readUsdcBalance(
+  publicClient: PublicClient,
+  owner: Address,
+): Promise<bigint> {
+  return publicClient.readContract({
+    address: USDC_ADDRESS,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [owner],
+  });
+}
+
+/**
+ * Cheap RPC-only checks before any Odos quote/assemble.
+ * Avoids burning API quota when the wallet cannot pay for the swap.
+ */
+export async function assertFundsForSwap(
+  clients: WorkerClients,
+  amountUsdcBaseUnits: bigint,
+): Promise<void> {
+  const [usdcBalance, ethBalance, gasPrice] = await Promise.all([
+    readUsdcBalance(clients.publicClient, clients.address),
+    clients.publicClient.getBalance({ address: clients.address }),
+    clients.publicClient.getGasPrice(),
+  ]);
+
+  if (usdcBalance < amountUsdcBaseUnits) {
+    throw new Error(formatInsufficientUsdcError(usdcBalance, amountUsdcBaseUnits));
+  }
+
+  // Budget approve + swap — we don't know allowance yet (spender comes from Odos).
+  const requiredEth = estimateRequiredEthWei(gasPrice);
+
+  if (ethBalance < requiredEth) {
+    throw new Error(formatInsufficientEthError(ethBalance, requiredEth));
+  }
 }
 
 export async function ensureUsdcAllowance(
