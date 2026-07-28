@@ -20,6 +20,11 @@ type PurchaseEditFormProps = {
   isSubmitting?: boolean;
 };
 
+function normalizeTxHash(value: string): string | undefined {
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 export function PurchaseForm({
   initialDate,
   onSubmit,
@@ -30,6 +35,7 @@ export function PurchaseForm({
   const [amountUsdt, setAmountUsdt] = useState("");
   const [btcPrice, setBtcPrice] = useState("");
   const [source, setSource] = useState<PurchaseSource>("manual");
+  const [txHash, setTxHash] = useState("");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -37,6 +43,7 @@ export function PurchaseForm({
     const amount = Number(amountUsdt);
     const price = Number(btcPrice);
     const effectiveDate = initialDate ?? date;
+    const normalizedTxHash = normalizeTxHash(txHash);
 
     if (
       !effectiveDate ||
@@ -53,6 +60,7 @@ export function PurchaseForm({
       amountUsdt: amount,
       btcPrice: price,
       source,
+      ...(normalizedTxHash ? { txHash: normalizedTxHash } : {}),
     });
   }
 
@@ -66,6 +74,8 @@ export function PurchaseForm({
       setBtcPrice={setBtcPrice}
       source={source}
       setSource={setSource}
+      txHash={txHash}
+      setTxHash={setTxHash}
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
@@ -85,6 +95,7 @@ export function PurchaseEditForm({
   const [amountUsdt, setAmountUsdt] = useState(purchase.amountUsdt.toString());
   const [btcPrice, setBtcPrice] = useState(purchase.btcPrice.toString());
   const [source, setSource] = useState<PurchaseSource>(purchase.source);
+  const [txHash, setTxHash] = useState(purchase.txHash ?? "");
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -94,6 +105,7 @@ export function PurchaseEditForm({
       amountUsdt: Number(amountUsdt),
       btcPrice: Number(btcPrice),
       source,
+      txHash: normalizeTxHash(txHash) ?? null,
     });
   }
 
@@ -107,6 +119,8 @@ export function PurchaseEditForm({
       setBtcPrice={setBtcPrice}
       source={source}
       setSource={setSource}
+      txHash={txHash}
+      setTxHash={setTxHash}
       onSubmit={handleSubmit}
       onCancel={onCancel}
       isSubmitting={isSubmitting}
@@ -124,6 +138,8 @@ function PurchaseFormFields({
   setBtcPrice,
   source,
   setSource,
+  txHash,
+  setTxHash,
   onSubmit,
   onCancel,
   isSubmitting,
@@ -139,6 +155,8 @@ function PurchaseFormFields({
   setBtcPrice: (value: string) => void;
   source: PurchaseSource;
   setSource: (value: PurchaseSource) => void;
+  txHash: string;
+  setTxHash: (value: string) => void;
   onSubmit: (event: React.FormEvent) => Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
@@ -197,6 +215,19 @@ function PurchaseFormFields({
           <option value="manual">Manual</option>
           <option value="dca">DCA bot</option>
         </select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="purchase-tx-hash">Tx hash (optional)</Label>
+        <Input
+          id="purchase-tx-hash"
+          type="text"
+          value={txHash}
+          onChange={(event) => setTxHash(event.target.value)}
+          placeholder="0x…"
+          autoComplete="off"
+          spellCheck={false}
+        />
       </div>
 
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
