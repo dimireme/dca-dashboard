@@ -1,11 +1,30 @@
 import { mapStrategies, mapStrategy } from "@/lib/mappers";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_LOCK_STALE_MS } from "@/lib/strategy-execution-lock";
 import type { CreateStrategyInput, DcaStrategy, UpdateStrategyInput } from "@/types";
 
 type StrategyScheduleFields = {
   enabled: boolean;
   nextExecutionAt: Date | null;
 };
+
+function claimableWhere(now: Date, staleMs: number) {
+  const staleBefore = new Date(now.getTime() - staleMs);
+
+  return {
+    OR: [
+      { executionStatus: "idle" as const },
+      {
+        executionStatus: "running" as const,
+        lockedAt: { lte: staleBefore },
+      },
+      {
+        executionStatus: "running" as const,
+        lockedAt: null,
+      },
+    ],
+  };
+}
 
 export async function findAllStrategies(): Promise<DcaStrategy[]> {
   const records = await prisma.dcaStrategy.findMany({
@@ -15,11 +34,15 @@ export async function findAllStrategies(): Promise<DcaStrategy[]> {
   return mapStrategies(records);
 }
 
-export async function findDueStrategies(now = new Date()): Promise<DcaStrategy[]> {
+export async function findDueStrategies(
+  now = new Date(),
+  staleMs = DEFAULT_LOCK_STALE_MS,
+): Promise<DcaStrategy[]> {
   const records = await prisma.dcaStrategy.findMany({
     where: {
       enabled: true,
       nextExecutionAt: { lte: now },
+      ...claimableWhere(now, staleMs),
     },
     orderBy: [{ nextExecutionAt: "asc" }],
   });
@@ -27,7 +50,33 @@ export async function findDueStrategies(now = new Date()): Promise<DcaStrategy[]
   return mapStrategies(records);
 }
 
-export async function markStrategyExecutedRecord(
+/**
+ * Atomically claim a due strategy for execution (idle/stuck → running).
+ * Returns false if another worker already holds a fresh lock.
+ */
+export async function claimStrategyExecution(
+  id: string,
+  now = new Date(),
+  staleMs = DEFAULT_LOCK_STALE_MS,
+): Promise<boolean> {
+  const result = await prisma.dcaStrategy.updateMany({
+    where: {
+      id,
+      enabled: true,
+      nextExecutionAt: { lte: now },
+      ...claimableWhere(now, staleMs),
+    },
+    data: {
+      executionStatus: "running",
+      lockedAt: now,
+    },
+  });
+
+  return result.count === 1;
+}
+
+/** Success path: advance schedule and release lock. */
+export async function completeStrategyExecution(
   id: string,
   lastExecutionAt: Date,
   nextExecutionAt: Date,
@@ -38,6 +87,8 @@ export async function markStrategyExecutedRecord(
       data: {
         lastExecutionAt,
         nextExecutionAt,
+        executionStatus: "idle",
+        lockedAt: null,
       },
     });
 
@@ -45,6 +96,30 @@ export async function markStrategyExecutedRecord(
   } catch {
     return null;
   }
+}
+
+/** Pre-chain failure: release lock so the next poll can retry. */
+export async function rollbackStrategyExecution(id: string): Promise<boolean> {
+  const result = await prisma.dcaStrategy.updateMany({
+    where: {
+      id,
+      executionStatus: "running",
+    },
+    data: {
+      executionStatus: "idle",
+      lockedAt: null,
+    },
+  });
+
+  return result.count === 1;
+}
+
+export async function markStrategyExecutedRecord(
+  id: string,
+  lastExecutionAt: Date,
+  nextExecutionAt: Date,
+): Promise<DcaStrategy | null> {
+  return completeStrategyExecution(id, lastExecutionAt, nextExecutionAt);
 }
 
 export async function findStrategyById(id: string): Promise<DcaStrategy | null> {

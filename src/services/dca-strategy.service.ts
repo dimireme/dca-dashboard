@@ -2,13 +2,16 @@ import {
   resolveNextExecutionAtForCreate,
   resolveNextExecutionAtForUpdate,
 } from "@/lib/dca-strategy-schedule";
+import { DEFAULT_LOCK_STALE_MS } from "@/lib/strategy-execution-lock";
 import {
+  claimStrategyExecution,
+  completeStrategyExecution,
   createStrategyRecord,
   deleteStrategyRecord,
   findAllStrategies,
   findDueStrategies,
   findStrategyById,
-  markStrategyExecutedRecord,
+  rollbackStrategyExecution,
   updateStrategyRecord,
 } from "@/repositories/dca-strategy.repository";
 import { findPurchaseAmountsByStrategyIds } from "@/repositories/purchase.repository";
@@ -45,8 +48,34 @@ export async function listStrategies(): Promise<DcaStrategy[]> {
   }));
 }
 
-export async function listDueStrategies(now = new Date()): Promise<DcaStrategy[]> {
-  return findDueStrategies(now);
+export async function listDueStrategies(
+  now = new Date(),
+  staleMs = DEFAULT_LOCK_STALE_MS,
+): Promise<DcaStrategy[]> {
+  return findDueStrategies(now, staleMs);
+}
+
+export async function claimDueStrategy(
+  id: string,
+  now = new Date(),
+  staleMs = DEFAULT_LOCK_STALE_MS,
+): Promise<boolean> {
+  return claimStrategyExecution(id, now, staleMs);
+}
+
+export async function completeDueStrategy(
+  id: string,
+  intervalHours: number,
+  executedAt = new Date(),
+): Promise<DcaStrategy | null> {
+  const nextExecutionAt = new Date(
+    executedAt.getTime() + intervalHours * 60 * 60 * 1000,
+  );
+  return completeStrategyExecution(id, executedAt, nextExecutionAt);
+}
+
+export async function rollbackDueStrategy(id: string): Promise<boolean> {
+  return rollbackStrategyExecution(id);
 }
 
 export async function getStrategy(id: string): Promise<DcaStrategy | null> {
@@ -89,8 +118,7 @@ export async function markStrategyExecuted(
   intervalHours: number,
   executedAt = new Date(),
 ): Promise<DcaStrategy | null> {
-  const nextExecutionAt = new Date(executedAt.getTime() + intervalHours * 60 * 60 * 1000);
-  return markStrategyExecutedRecord(id, executedAt, nextExecutionAt);
+  return completeDueStrategy(id, intervalHours, executedAt);
 }
 
 export async function deleteStrategy(id: string): Promise<boolean> {

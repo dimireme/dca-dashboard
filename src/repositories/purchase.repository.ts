@@ -89,18 +89,43 @@ export async function createPurchases(
 }
 
 export async function createPurchase(input: CreatePurchaseInput & { date: string }): Promise<Purchase> {
-  const record = await prisma.purchase.create({
-    data: {
-      date: toDbDate(input.date),
-      amountUsdt: input.amountUsdt,
-      btcPrice: input.btcPrice,
-      source: input.source,
-      txHash: input.txHash ?? null,
-      strategyId: input.strategyId ?? null,
-    },
-  });
+  try {
+    const record = await prisma.purchase.create({
+      data: {
+        date: toDbDate(input.date),
+        amountUsdt: input.amountUsdt,
+        btcPrice: input.btcPrice,
+        source: input.source,
+        txHash: input.txHash ?? null,
+        strategyId: input.strategyId ?? null,
+      },
+    });
 
-  return mapPurchase(record);
+    return mapPurchase(record);
+  } catch (error) {
+    if (input.txHash && isUniqueConstraintError(error)) {
+      const existing = await findPurchaseByTxHash(input.txHash);
+      if (existing) {
+        return existing;
+      }
+    }
+
+    throw error;
+  }
+}
+
+export async function findPurchaseByTxHash(txHash: string): Promise<Purchase | null> {
+  const record = await prisma.purchase.findUnique({ where: { txHash } });
+  return record ? mapPurchase(record) : null;
+}
+
+function isUniqueConstraintError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code: unknown }).code === "P2002"
+  );
 }
 
 export async function updatePurchase(

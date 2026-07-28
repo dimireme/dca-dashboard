@@ -5,6 +5,8 @@ export type WorkerConfig = {
   odosApiKey: string | null;
   pollIntervalMs: number;
   slippageLimitPercent: number;
+  /** Reclaim `running` locks older than this (redeploy / crash). */
+  lockStaleMs: number;
 };
 
 function requireEnv(name: string): string {
@@ -31,5 +33,6 @@ export function loadWorkerConfig(): WorkerConfig {
     odosApiKey: process.env.ODOS_API_KEY?.trim() || null,
     pollIntervalMs: Number(process.env.WORKER_POLL_INTERVAL_MS ?? 60_000),
     slippageLimitPercent: Number(process.env.SWAP_SLIPPAGE_PERCENT ?? 0.5),
+    lockStaleMs: Number(process.env.WORKER_LOCK_STALE_MS ?? 15 * 60 * 1000),
   };
 }

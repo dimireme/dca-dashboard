@@ -7,15 +7,22 @@ datasource db {
   provider = "postgresql"
 }
 
+enum StrategyExecutionStatus {
+  idle
+  running
+}
+
 model DcaStrategy {
-  id              String    @id @default(cuid())
-  enabled         Boolean   @default(true)
+  id              String                   @id @default(cuid())
+  enabled         Boolean                  @default(true)
   amountUsdc      Float
   intervalHours   Int
   lastExecutionAt DateTime?
   nextExecutionAt DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  executionStatus StrategyExecutionStatus  @default(idle)
+  lockedAt        DateTime?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
   purchases       Purchase[]
 }
 
@@ -25,7 +32,7 @@ model Purchase {
   amountUsdt Float
   btcPrice   Float
   source     String
-  txHash     String?
+  txHash     String?      @unique
   createdAt  DateTime     @default(now())
   strategyId String?
   strategy   DcaStrategy? @relation(fields: [strategyId], references: [id], onDelete: SetNull)
