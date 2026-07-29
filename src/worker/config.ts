@@ -2,7 +2,8 @@ export type WorkerConfig = {
   databaseUrl: string;
   arbitrumRpcUrl: string;
   walletPrivateKey: `0x${string}`;
-  odosApiKey: string | null;
+  /** Sent as x-client-id to KyberSwap (avoids stricter anonymous rate limits). */
+  kyberClientId: string;
   pollIntervalMs: number;
   slippageLimitPercent: number;
   /** Reclaim `running` locks older than this (redeploy / crash). */
@@ -30,7 +31,7 @@ export function loadWorkerConfig(): WorkerConfig {
     databaseUrl: requireEnv("DATABASE_URL"),
     arbitrumRpcUrl: requireEnv("ARBITRUM_RPC_URL"),
     walletPrivateKey: normalizePrivateKey(requireEnv("WALLET_PRIVATE_KEY")),
-    odosApiKey: process.env.ODOS_API_KEY?.trim() || null,
+    kyberClientId: process.env.KYBERSWAP_CLIENT_ID?.trim() || "dca-dashboard",
     pollIntervalMs: Number(process.env.WORKER_POLL_INTERVAL_MS ?? 60_000),
     slippageLimitPercent: Number(process.env.SWAP_SLIPPAGE_PERCENT ?? 0.5),
     lockStaleMs: Number(process.env.WORKER_LOCK_STALE_MS ?? 15 * 60 * 1000),

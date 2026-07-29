@@ -203,14 +203,14 @@ Both share Prisma schema, services, and repositories. No separate repo, no HTTP 
 
 ### Swap provider
 
-**Odos** — primary DEX aggregator for Arbitrum.
+**KyberSwap** — primary DEX aggregator for Arbitrum.
 
 Flow per strategy execution:
 
 1. Query all strategies where `enabled = true` AND `nextExecutionAt <= now()`
 2. For each due strategy (sequentially — same wallet, avoid nonce conflicts):
-   - Request quote from Odos (`USDC → WBTC`)
-   - Assemble transaction via Odos API
+   - Request route from KyberSwap (`USDC → WBTC`)
+   - Build transaction via KyberSwap API
    - Sign and broadcast with worker wallet
    - Wait for confirmation
    - Create `Purchase` via `purchase.service.ts` (`amountUsdt`, `btcPrice` = effective price, `source = dca`, `strategyId`, `txHash`)

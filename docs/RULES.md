@@ -116,7 +116,7 @@ Single-user application.
 - `WALLET_PRIVATE_KEY` — only in worker process env, never in dashboard
 - Use a dedicated DCA wallet with limited USDC balance, not the main cold wallet
 - Never log private keys, RPC URLs with embedded secrets, or full transaction payloads in production
-- Odos API key — optional for public API; required only for enterprise endpoint
+- KyberSwap — public Aggregator API; set `KYBERSWAP_CLIENT_ID` (default `dca-dashboard`) to avoid anonymous rate limits
 
 ---
 

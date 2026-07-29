@@ -79,7 +79,7 @@ export async function readUsdcBalance(
 }
 
 /**
- * Cheap RPC-only checks before any Odos quote/assemble.
+ * Cheap RPC-only checks before any KyberSwap quote/build.
  * Avoids burning API quota when the wallet cannot pay for the swap.
  */
 export async function assertFundsForSwap(
@@ -96,7 +96,7 @@ export async function assertFundsForSwap(
     throw new Error(formatInsufficientUsdcError(usdcBalance, amountUsdcBaseUnits));
   }
 
-  // Budget approve + swap — we don't know allowance yet (spender comes from Odos).
+  // Budget approve + swap — we don't know allowance yet (spender comes from Kyber).
   const requiredEth = estimateRequiredEthWei(gasPrice);
 
   if (ethBalance < requiredEth) {
@@ -120,7 +120,7 @@ export async function ensureUsdcAllowance(
     return;
   }
 
-  console.log(`[worker] Approving USDC for Odos router (spender=${spender})`);
+  console.log(`[worker] Approving USDC for KyberSwap router (spender=${spender})`);
 
   const hash = await clients.walletClient.writeContract({
     address: USDC_ADDRESS,

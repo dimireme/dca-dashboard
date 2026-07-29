@@ -9,9 +9,7 @@ async function main() {
 
   console.log(`[worker] Started (wallet=${scheduler.walletAddress})`);
   console.log(`[worker] Poll interval: ${config.pollIntervalMs}ms`);
-  console.log(
-    `[worker] Odos: ${config.odosApiKey ? "enterprise (API key set)" : "public API"}`,
-  );
+  console.log(`[worker] KyberSwap client-id: ${config.kyberClientId}`);
 
   const runTick = async () => {
     try {

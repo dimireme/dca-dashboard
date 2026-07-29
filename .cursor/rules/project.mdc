@@ -25,7 +25,7 @@ alwaysApply: true
 
 Бот не ходит в HTTP API дашборда — использует те же `services/` и `repositories/`.
 
-Swap: **Odos** на Arbitrum. Приватный ключ только в env worker-контейнера.
+Swap: **KyberSwap** Aggregator API на Arbitrum. Приватный ключ только в env worker-контейнера.
 
 ## Приоритеты UI
 
@@ -48,7 +48,7 @@ Worker (`src/worker/`) → Services → Repositories → Prisma
 - API: тонкий слой — Zod-валидация, вызов services
 - Services: вся бизнес-логика (общая для dashboard и worker)
 - Repositories: единственное место для Prisma-запросов
-- Worker: polling due `DcaStrategy` rows, swap через Odos, запись Purchase
+- Worker: polling due `DcaStrategy` rows, swap через KyberSwap, запись Purchase
 
 ## Принципы
 

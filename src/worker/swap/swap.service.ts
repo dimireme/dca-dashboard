@@ -1,6 +1,6 @@
 import type { Hash } from "viem";
 import type { WorkerConfig } from "@/worker/config";
-import { OdosClient } from "@/worker/swap/odos.client";
+import { KyberSwapClient } from "@/worker/swap/kyberswap.client";
 import {
   calculateEffectiveBtcPrice,
   usdcToBaseUnits,
@@ -42,12 +42,12 @@ function sleep(ms: number): Promise<void> {
 
 export class SwapService {
   private readonly clients: WorkerClients;
-  private readonly odos: OdosClient;
+  private readonly kyber: KyberSwapClient;
   private readonly slippageLimitPercent: number;
 
   constructor(config: WorkerConfig) {
     this.clients = createWorkerClients(config.walletPrivateKey, config.arbitrumRpcUrl);
-    this.odos = new OdosClient(config.odosApiKey);
+    this.kyber = new KyberSwapClient(config.kyberClientId);
     this.slippageLimitPercent = config.slippageLimitPercent;
   }
 
@@ -58,23 +58,20 @@ export class SwapService {
   async swapUsdcToWbtc(amountUsdc: number): Promise<SwapResult> {
     const amountBaseUnits = usdcToBaseUnits(amountUsdc);
 
-    // RPC-only: skip Odos when wallet cannot fund the swap / gas.
+    // RPC-only: skip Kyber when wallet cannot fund the swap / gas.
     await assertFundsForSwap(this.clients, amountBaseUnits);
 
-    const quote = await this.odos.quote({
-      userAddr: this.clients.address,
+    const route = await this.kyber.getRoute({
       amountBaseUnits,
+      origin: this.clients.address,
+    });
+
+    const transaction = await this.kyber.buildRoute({
+      routeSummary: route.routeSummary,
+      sender: this.clients.address,
+      recipient: this.clients.address,
       slippageLimitPercent: this.slippageLimitPercent,
     });
-
-    // Assemble without simulation — Odos simulate requires USDC allowance already set.
-    const assembled = await this.odos.assemble({
-      userAddr: this.clients.address,
-      pathId: quote.pathId,
-      simulate: false,
-    });
-
-    const { transaction } = assembled;
 
     await ensureUsdcAllowance(this.clients, transaction.to, amountBaseUnits);
 

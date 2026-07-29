@@ -1,7 +1,7 @@
 import { formatEther, formatUnits } from "viem";
 import { USDC_DECIMALS } from "@/worker/swap/tokens";
 
-/** Conservative ceiling for Odos USDC→WBTC swap on Arbitrum (~700k observed). */
+/** Conservative ceiling for KyberSwap USDC→WBTC swap on Arbitrum. */
 export const SWAP_GAS_CEILING = BigInt(1_000_000);
 
 /** Extra gas if an ERC-20 approve may be needed before the swap. */
@@ -23,7 +23,7 @@ export function formatInsufficientUsdcError(
 ): string {
   return (
     `Insufficient USDC: have ${formatUnits(have, USDC_DECIMALS)} USDC, ` +
-    `need ${formatUnits(need, USDC_DECIMALS)} USDC — skipping Odos`
+    `need ${formatUnits(need, USDC_DECIMALS)} USDC — skipping KyberSwap`
   );
 }
 
@@ -33,6 +33,6 @@ export function formatInsufficientEthError(
 ): string {
   return (
     `Insufficient ETH for gas: have ${formatEther(have)} ETH, ` +
-    `need ~${formatEther(need)} ETH — skipping Odos`
+    `need ~${formatEther(need)} ETH — skipping KyberSwap`
   );
 }

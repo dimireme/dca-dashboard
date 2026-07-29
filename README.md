@@ -54,7 +54,7 @@ yarn worker
 Two processes share one PostgreSQL database:
 
 - **Dashboard** — `yarn dev` / `yarn start` (manual purchases, calendar, strategies)
-- **Worker** — `yarn worker` (USDC → WBTC swaps on Arbitrum via Odos, then writes `Purchase` with `source = dca`)
+- **Worker** — `yarn worker` (USDC → WBTC swaps on Arbitrum via KyberSwap, then writes `Purchase` with `source = dca`)
 
 The worker does **not** call the dashboard HTTP API. It uses the same `services/` and `repositories/` as the app and writes to the DB directly.
 

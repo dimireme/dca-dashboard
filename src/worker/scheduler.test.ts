@@ -54,7 +54,7 @@ const config: WorkerConfig = {
   databaseUrl: "postgres://test",
   arbitrumRpcUrl: "https://example.com",
   walletPrivateKey: `0x${"11".repeat(32)}`,
-  odosApiKey: null,
+  kyberClientId: "dca-dashboard",
   pollIntervalMs: 60_000,
   slippageLimitPercent: 0.5,
   lockStaleMs: 15 * 60 * 1000,

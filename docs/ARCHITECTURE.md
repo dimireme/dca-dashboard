@@ -8,7 +8,7 @@ BTC DCA Tracker is a single-user application with two runtime processes:
 Next.js Dashboard  ──►  PostgreSQL  ◄──  Node Worker
                                               │
                                               ▼
-                                           Odos API
+                                        KyberSwap API
                                               │
                                               ▼
                                           Arbitrum
@@ -56,7 +56,7 @@ src/
     index.ts
     scheduler.ts
     swap/
-      odos.client.ts
+      kyberswap.client.ts
       swap.service.ts
   lib/
     prisma.ts
@@ -152,7 +152,7 @@ Responsibilities:
 
 - poll all `DcaStrategy` rows where `enabled` and `nextExecutionAt <= now()`
 - execute due strategies sequentially (one wallet)
-- execute swap via Odos per strategy
+- execute swap via KyberSwap per strategy
 - sign and send transaction (viem/ethers)
 - record purchase via `purchase.service.ts`
 - update timestamps for the executed strategy
@@ -215,7 +215,7 @@ Environment:
 - `DATABASE_URL`
 - `ARBITRUM_RPC_URL`
 - `WALLET_PRIVATE_KEY`
-- `ODOS_API_KEY` (optional — public `https://api.odos.xyz` works without it)
+- `KYBERSWAP_CLIENT_ID` (optional — default `dca-dashboard`)
 
 ## Local Development
 
@@ -317,8 +317,8 @@ When there are no purchases yet, the calendar shows all days as neutral and sche
 └──────┬──────┘   │
        ▼          │
 ┌─────────────┐   │
-│ Odos quote  │   │
-│ + assemble  │   │
+│ Kyber route │   │
+│ + build     │   │
 └──────┬──────┘   │
        ▼          │
 ┌─────────────┐   │
@@ -346,20 +346,20 @@ Calendar and dashboard metrics update automatically from new `Purchase` rows.
 
 ---
 
-# Swap Integration (Odos)
+# Swap Integration (KyberSwap)
 
-Provider: **Odos** (primary, Arbitrum).
+Provider: **KyberSwap Aggregator V1** (Arbitrum).
 
 Two-step API flow:
 
-1. `POST /sor/quote/v3` — get route and `pathId`
-2. `POST /sor/assemble` — get `transaction` (`to`, `data`, `value`, gas)
+1. `GET /arbitrum/api/v1/routes` — get `routeSummary` and `routerAddress`
+2. `POST /arbitrum/api/v1/route/build` — get calldata (`data`, `routerAddress`, `transactionValue`, gas)
 
-Worker signs assembled transaction and broadcasts via Arbitrum RPC.
+Worker signs built transaction and broadcasts via Arbitrum RPC.
 
-Abstraction: `src/worker/swap/odos.client.ts` wraps HTTP calls; `swap.service.ts` orchestrates quote → sign → send. Swap provider interface allows future fallback without changing purchase logic.
+Abstraction: `src/worker/swap/kyberswap.client.ts` wraps HTTP calls; `swap.service.ts` orchestrates route → build → approve → send.
 
-`pathId` must be assembled promptly after quote (do not cache quotes).
+`routeSummary` must be built promptly after quote (do not cache routes longer than a few seconds).
 
 ---
 

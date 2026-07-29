@@ -26,7 +26,7 @@ describe("estimateRequiredEthWei", () => {
 describe("insufficient fund messages", () => {
   it("formats USDC skip message", () => {
     expect(formatInsufficientUsdcError(BigInt(1_000_000), BigInt(10_000_000))).toContain(
-      "skipping Odos",
+      "skipping KyberSwap",
     );
     expect(formatInsufficientUsdcError(BigInt(1_000_000), BigInt(10_000_000))).toContain(
       "1 USDC",
@@ -38,7 +38,7 @@ describe("insufficient fund messages", () => {
       BigInt("23520357248000"),
       BigInt("34000000000000"),
     );
-    expect(message).toContain("skipping Odos");
+    expect(message).toContain("skipping KyberSwap");
     expect(message).toContain("Insufficient ETH");
   });
 });
